@@ -1,0 +1,24 @@
+package com.jlox;
+
+class Token {
+
+	/*A class to represent tokens and their position in the code.
+	 * */
+	
+	final TokenType type;
+	final String lexeme;
+	final Object literal;
+	final int line;
+	
+	Token(TokenType type, String lexeme, Object literal, int line){
+		this.type = type;
+		this.lexeme = lexeme;
+		this.literal = literal;
+		this.line = line;
+	}
+	
+	public String toString() {
+		return type + " " + lexeme + " " + literal;
+	}
+	
+}
