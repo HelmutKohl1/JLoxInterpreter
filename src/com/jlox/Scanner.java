@@ -17,6 +17,26 @@ class Scanner {
 	private int start = 0;
 	private int current = 0;
 	private int line = 1;
+	private static final Map<String, TokenType> keywords;
+	static {
+		keywords = new HashMap<String, TokenType>();
+		keywords.put("and", AND);
+		keywords.put("class", CLASS);
+		keywords.put("else", ELSE);
+		keywords.put("false", FALSE);
+		keywords.put("for", FOR);
+		keywords.put("fun", FUN);
+		keywords.put("if", IF);
+		keywords.put("nil", NIL);
+		keywords.put("or", OR);
+		keywords.put("print", PRINT);
+		keywords.put("return", RETURN);
+		keywords.put("super", SUPER);
+		keywords.put("this", THIS);
+		keywords.put("true", TRUE);
+		keywords.put("var", VAR);
+		keywords.put("while", WHILE);
+	}
 	
 	Scanner (String source){
 		this.source = source;
@@ -54,14 +74,94 @@ class Scanner {
 				addToken(match('=')? BANG_EQUAL : BANG);
 				break;
 			case '<':
+				addToken(match('=')? LESS_EQUAL : LESS);
+				break;
+			case '>':
+				addToken(match('=')? GREATER_EQUAL : GREATER);
+				break;
+			case '=':
+				addToken(match('=')? EQUAL_EQUAL : EQUAL);
+				break;
 				
+			// Handling '/'
+			case '/':
+				if (match('/')) {
+					//A comment goes until the end of the line
+					while (peek() != '\n' && !isAtEnd()) {
+						advance();
+					}
+				}else {
+					addToken(SLASH);
+				}
+				
+			// Ignore whitespace
+			case ' ':
+			case '\r':
+			case '\t':
+				break;
+			case '\n':
+				// Move on a line when encountering the newline character
+				line++;
+				break;
+				
+			// String literals
+			case '"': string(); break;
 			
 			// Unexpected character handling
 			default:
-				Lox.error(line, "Unexpected character.");
+				// Handling number literals
+				if (isDigit(c)) {
+					number();
+				} else if (isAlpha(c)) { 
+					// Handling identifiers
+					identifier();
+				} else {		
+					Lox.error(line, "Unexpected character.");
+				}
 				break;
 		}
 		
+	}
+	
+	private void identifier() {
+		while(isAlphaNumeric(peek())) advance();
+		String text = source.substring(start, current);
+		TokenType type = keywords.get(text);
+		if (type == null) type = IDENTIFIER;
+		
+		addToken(type);
+	}
+
+	private void number() {
+		while(isDigit(peek())) advance();
+		
+		//Look for fractional part
+		if (peek() == '.' && isDigit(peekNext())) {
+			advance();
+			// Consume fractional part
+			while(isDigit(peek())) advance();
+		}		
+		addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+	}
+
+	private void string() {
+		while (peek() != '"' && !isAtEnd()) {
+			if (peek() == '\n') line++;
+			advance();
+		}
+		
+		if (isAtEnd()) {
+			Lox.error(line, "Unterminated string.");
+			return;
+		}
+		
+		// To close the string
+		advance();
+		
+		// Trim the surrounding quotes
+		String value = source.substring(start + 1, current - 1);
+		addToken(STRING, value);
+		return;
 	}
 	
 	private boolean match(char expected) {
@@ -70,6 +170,30 @@ class Scanner {
 		
 		current++;
 		return true;
+	}
+	
+	private char peek() {
+		/* Lookahead function (using one-character lookahead) */
+		if (isAtEnd()) return '\0';
+		return source.charAt(current);
+	}
+	
+	private char peekNext() {
+		/* A function to provide a second character of lookahead*/
+		if (current + 1 >= source.length()) return '\0';
+		return source.charAt(current + 1);
+	}
+	
+	private boolean isAlpha(char c) {
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c>= 'Z');
+	}
+	
+	private boolean isAlphaNumeric(char c) {
+		return isAlpha(c) || isDigit(c);
+	}
+	
+	private boolean isDigit(char c) {
+		return c >= '0' && c <= '9';
 	}
 	
 	private boolean isAtEnd() {
