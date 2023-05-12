@@ -92,7 +92,7 @@ class Scanner {
 					}
 				}else if (match('*')){
 					// Multi-line comment
-					while (!(peek() == '*' && match('/')) && !isAtEnd()) {
+					while (!(match('*') && peek() == '/') && !isAtEnd()) {
 						advance();
 					}
 				}
