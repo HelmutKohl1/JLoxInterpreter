@@ -86,11 +86,17 @@ class Scanner {
 			// Handling '/'
 			case '/':
 				if (match('/')) {
-					//A comment goes until the end of the line
+					// A comment goes until the end of the line
 					while (peek() != '\n' && !isAtEnd()) {
 						advance();
 					}
-				}else {
+				}else if (match('*')){
+					// Multi-line comment
+					while (!(peek() == '*' && match('/')) && !isAtEnd()) {
+						advance();
+					}
+				}
+				else {
 					addToken(SLASH);
 				}
 				
@@ -165,6 +171,7 @@ class Scanner {
 	}
 	
 	private boolean match(char expected) {
+		/* Looks ahead one character and consumes it */
 		if (isAtEnd()) return false;
 		if (source.charAt(current) != expected) return false;
 		
@@ -201,6 +208,7 @@ class Scanner {
 	}
 	
 	private char advance() {
+		/* Consume next character without looking ahead*/
 		return source.charAt(current++);
 	}
 	
