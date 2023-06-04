@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import com.jlox.Expr.Grouping;
+
 public class Lox {
 	
 	static boolean hadError = false;
@@ -21,8 +23,10 @@ public class Lox {
 		} else if (args.length == 1) {
 			runFile(args[0]);
 		} else {
-			runPrompt();
+			//runPrompt();
+			demoRPNFormatter();
 		}
+		
 	}
 	
 	private static void runFile(String path) throws IOException {
@@ -67,5 +71,23 @@ public class Lox {
 	private static void report(int line, String where, String message) {
 		System.err.println("[line " + line + "] Error " + where + " : " + message);
 		hadError = true;
+	}
+	
+	// Method to demo the Reverse Polish Notation Formatter class
+	private static void demoRPNFormatter() {
+		Expr expression = new Expr.Binary(
+				new Expr.Grouping(new Expr.Binary(
+						new Expr.Literal(1),
+						new Token(TokenType.PLUS, "+", null, 1),
+						new Expr.Literal(2))),
+			    new Token(TokenType.STAR, "*", null, 1),
+			    new Expr.Grouping(new Expr.Binary(
+			    		new Expr.Literal(4),
+			    		new Token(TokenType.MINUS, "-", null, 1),
+			    		new Expr.Literal(3))));
+		
+		Expr expression1 = new Expr.Unary(new Token(TokenType.MINUS, "-", null, 1), new Expr.Grouping(new Expr.Literal(5)));
+			    		
+		System.out.println(new RPNFormatter().print(expression));
 	}
 }

@@ -39,7 +39,7 @@ public class AstPrinter implements Expr.Visitor<String> {
 		builder.append("(").append(name);
 		for (Expr ex : expr) {
 			builder.append(" ");
-			builder.append(ex.accept(this));
+			builder.append(ex.accept(this)); // This is where the recursion happens, meaning the whole AST can be traversed
 		}
 		builder.append(")");
 		return builder.toString();
