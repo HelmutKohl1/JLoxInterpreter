@@ -9,7 +9,7 @@ import com.jlox.Expr.Visitor;
 public class RPNFormatter implements Visitor<String> {
 
 	public String print(Expr expr) {
-		// .accept(this0) calls the appropriate visitType method with the RPNformatter instance as the argument
+		// .accept(this) calls the appropriate visitType method with the RPNformatter instance as the argument
 		return expr.accept(this); 
 	}
 	
