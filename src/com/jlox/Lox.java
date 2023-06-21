@@ -73,8 +73,16 @@ public class Lox {
 		hadError = true;
 	}
 	
-	// Method to demo the Reverse Polish Notation Formatter class
+	static void error(Token token, String message) {
+		if(token.type == TokenType.EOF) {
+			report(token.line, " at end", message);
+		} else {
+			report(token.line, " at '" + token.lexeme + "'", message);
+		}
+	}
+	
 	private static void demoRPNFormatter() {
+		/* Method to demo the Reverse Polish Notation Formatter class. */
 		Expr expression = new Expr.Binary(
 				new Expr.Grouping(new Expr.Binary(
 						new Expr.Literal(1),
