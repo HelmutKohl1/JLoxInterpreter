@@ -23,8 +23,7 @@ public class Lox {
 		} else if (args.length == 1) {
 			runFile(args[0]);
 		} else {
-			//runPrompt();
-			demoRPNFormatter();
+			runPrompt();
 		}
 		
 	}
@@ -55,7 +54,13 @@ public class Lox {
 	private static void run(String source) {
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.scanTokens(); 
-		printTokens(tokens); // print the tokens
+		
+		Parser parser = new Parser(tokens);
+		Expr expression = parser.parse();
+		
+		if(hadError) return;
+		
+		System.out.println(new AstPrinter().print(expression));
 	}
 	
 	private static void printTokens(List<Token> list) {		
@@ -79,6 +84,12 @@ public class Lox {
 		} else {
 			report(token.line, " at '" + token.lexeme + "'", message);
 		}
+	}
+	
+	private static void demoScanner(String source) {
+		Scanner scanner = new Scanner(source);
+		List<Token> tokens = scanner.scanTokens(); 
+		printTokens(tokens); // print the tokens
 	}
 	
 	private static void demoRPNFormatter() {
