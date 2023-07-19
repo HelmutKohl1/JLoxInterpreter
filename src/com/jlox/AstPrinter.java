@@ -1,5 +1,6 @@
 package com.jlox;
 
+import com.jlox.Expr.Ternary;
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Literal;
@@ -9,6 +10,11 @@ public class AstPrinter implements Expr.Visitor<String> {
 
 	String print(Expr expr) {
 		return expr.accept(this);
+	}
+	
+	@Override
+	public String visitTernaryExpr(Ternary expr) {
+		return parenthesize(expr.qmark.lexeme, expr.cond, expr.left, expr.right);
 	}
 	
 	@Override

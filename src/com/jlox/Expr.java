@@ -9,11 +9,32 @@ abstract class Expr {
 	abstract <R> R accept(Visitor<R> visitor);
 
 	interface Visitor<R> {
+	R visitTernaryExpr(Ternary expr);
 	R visitBinaryExpr(Binary expr);
 	R visitGroupingExpr(Grouping expr);
 	R visitLiteralExpr(Literal expr);
 	R visitUnaryExpr(Unary expr);
 	}
+static class Ternary extends Expr {
+
+	final Token qmark;
+	final Expr cond;
+	final Expr left;
+	final Expr right;
+
+	Ternary (Token qmark, Expr cond, Expr left, Expr right) {
+		this.qmark = qmark;
+		this.cond = cond;
+		this.left = left;
+		this.right = right;
+
+	}
+
+	@Override
+	<R> R accept(Visitor<R> visitor){
+		return visitor.visitTernaryExpr(this);
+	}
+}
 static class Binary extends Expr {
 
 	final Expr left;

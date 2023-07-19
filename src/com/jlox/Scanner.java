@@ -68,6 +68,8 @@ class Scanner {
 			case '+': addToken(PLUS); break;
 			case ';': addToken(SEMICOLON); break;
 			case '*': addToken(STAR); break;
+			case '?': addToken(QMARK); break;
+			case ':': addToken(COLON); break;
 			
 			// Two-character lexemes
 			case '!': 

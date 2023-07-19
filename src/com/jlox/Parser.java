@@ -36,9 +36,10 @@ class Parser {
 	}
 
 	private Expr comma() {
-		/*Method added to support the comma (,) operator from C/C++ , pursuant to Exercise 1
-		 * of Parsing Expressions*/
-		Expr expr = equality();
+		/* Method added to support the comma (,) operator from C/C++ , pursuant to Exercise 1
+		 * of Parsing Expressions. */
+		//Expr expr = equality();
+		Expr expr = ternary();
 		while (match(COMMA)) {
 			Token operator = previous();
 			Expr left = equality();
@@ -47,6 +48,31 @@ class Parser {
 		
 		return expr;
 		
+	}
+	
+	private Expr ternary() {
+		/* Method to add support for the ternary conditional operator a ? b : c from C/C++ , pursuant to 
+		 * Exercise 2 from Parsing Expressions. 
+		 * 
+		 *  - The ? is above equality in precedence, and the : is above term, except when nesting.
+		 *  - The ? operator is right-associative, i.e. the following: a ? b : c ? e : f
+		 *  is equivalent to: a ? b : (c ? e : f)
+		 * */
+		
+		Expr expr = equality();
+		while (match(QMARK)) {
+			Token qmark = previous();
+			Expr left = ternary();//this can perhaps be made recursive by swapping it with ternary()
+			if (match(COLON)) {
+				Expr right = ternary();//this can perhaps be made recursive by swapping it with ternary()
+				expr = new Expr.Ternary(qmark, expr, left, right);
+			}
+			else {
+				throw error(peek(), "Colon expected as part of ternary expression");
+			}			
+		}
+		
+		return expr;
 	}
 	
 	private Expr equality() {
