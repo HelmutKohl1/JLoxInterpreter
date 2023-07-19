@@ -11,6 +11,7 @@ abstract class Expr {
 	interface Visitor<R> {
 	R visitTernaryExpr(Ternary expr);
 	R visitBinaryExpr(Binary expr);
+	R visitBinaryErrorExpr(BinaryError expr);
 	R visitGroupingExpr(Grouping expr);
 	R visitLiteralExpr(Literal expr);
 	R visitUnaryExpr(Unary expr);
@@ -51,6 +52,22 @@ static class Binary extends Expr {
 	@Override
 	<R> R accept(Visitor<R> visitor){
 		return visitor.visitBinaryExpr(this);
+	}
+}
+static class BinaryError extends Expr {
+
+	final String operator;
+	final Expr right;
+
+	BinaryError (String operator, Expr right) {
+		this.operator = operator;
+		this.right = right;
+
+	}
+
+	@Override
+	<R> R accept(Visitor<R> visitor){
+		return visitor.visitBinaryErrorExpr(this);
 	}
 }
 static class Grouping extends Expr {

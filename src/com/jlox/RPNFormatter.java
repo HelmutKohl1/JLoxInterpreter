@@ -1,6 +1,7 @@
 package com.jlox;
 
 import com.jlox.Expr.Binary;
+import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Ternary;
@@ -24,6 +25,11 @@ public class RPNFormatter implements Visitor<String> {
 		return revPolish(expr.operator.lexeme, expr.left, expr.right);
 	}
 
+	@Override
+	public String visitBinaryErrorExpr(BinaryError expr) {
+		return revPolish(expr.operator, expr.right);
+	}
+	
 	@Override
 	public String visitGroupingExpr(Grouping expr) {
 		return revPolish("group", expr.expression);

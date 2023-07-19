@@ -83,7 +83,7 @@ class Parser {
 			Expr right = comparison();
 			// Creates left-associated nested tree of binary expressions:
 			expr = new Expr.Binary(expr, operator, right);
-		}
+		} 
 		
 		return expr;
 	}
@@ -135,22 +135,41 @@ class Parser {
 	}
 	
 	private Expr primary() {
-		if (match(FALSE)) return new Expr.Literal(FALSE);
-		if (match(TRUE)) return new Expr.Literal(TRUE);
-		if (match(NIL)) return new Expr.Literal(NIL);
-		
-		if (match(NUMBER, STRING)) {
+		if (match(FALSE)) {
+			return new Expr.Literal(FALSE);
+		}
+		else if (match(TRUE)) {
+			return new Expr.Literal(TRUE);
+		}
+		else if (match(NIL)) {
+			return new Expr.Literal(NIL);
+		}
+		else if (match(NUMBER, STRING)) {
 			return new Expr.Literal(previous().literal);
 		}
-		
-		if (match(LEFT_PAREN)) {
+		else if (match(LEFT_PAREN)) {
 			Expr expr = expression();
 			consume(RIGHT_PAREN, "Expect ')' after expression.");
 			return new Expr.Grouping(expr);
+		} else {
+			return binaryError();
 		}
 		
 		// If the parser has found a token that cannot start a statement:
-		throw error(peek(), "Expression expected");
+		//throw error(peek(), "Expression expected");
+	}
+	
+	private Expr binaryError() { 
+		Token operator = peek();
+		advance();
+		try {
+			Expr right = primary();
+			// Might want to consider a re-imp of BinaryError...
+			return new Expr.BinaryError(operator.lexeme + "E", right);
+		}catch(java.lang.Exception e) {
+			throw error(peek(), "Expression expected");
+		}	
+
 	}
 	
 	private boolean match(TokenType... types) {
