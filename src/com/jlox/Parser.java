@@ -32,9 +32,23 @@ class Parser {
 	/*Methods for each expression type*/
 	
 	private Expr expression() {
-		return equality();
+		return comma();
 	}
 
+	private Expr comma() {
+		/*Method added to support the comma (,) operator from C/C++ , pursuant to Exercise 1
+		 * of Parsing Expressions*/
+		Expr expr = equality();
+		while (match(COMMA)) {
+			Token operator = previous();
+			Expr left = equality();
+			expr = new Expr.Binary(left, operator, expr);
+		}
+		
+		return expr;
+		
+	}
+	
 	private Expr equality() {
 		Expr expr = comparison();
 		
