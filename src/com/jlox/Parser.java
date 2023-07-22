@@ -56,7 +56,7 @@ class Parser {
 		 * 
 		 *  - The ? is above equality in precedence, and the : is above term, except when nesting.
 		 *  - The ? operator is right-associative, i.e. the following: a ? b : c ? e : f
-		 *  is equivalent to: a ? b : (c ? e : f)
+		 *  is equivalent to: a ? b : (c ? e : f), NOT: (a ? b : c) ? e : f
 		 * */
 		
 		Expr expr = equality();
