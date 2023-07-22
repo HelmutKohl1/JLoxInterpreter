@@ -56,10 +56,10 @@ static class Binary extends Expr {
 }
 static class BinaryError extends Expr {
 
-	final String operator;
+	final Token operator;
 	final Expr right;
 
-	BinaryError (String operator, Expr right) {
+	BinaryError (Token operator, Expr right) {
 		this.operator = operator;
 		this.right = right;
 

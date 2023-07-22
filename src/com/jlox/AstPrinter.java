@@ -25,7 +25,7 @@ public class AstPrinter implements Expr.Visitor<String> {
 	
 	@Override
 	public String visitBinaryErrorExpr(BinaryError expr) {
-		return parenthesize(expr.operator, expr.right);
+		return parenthesize(expr.operator.lexeme, expr.right);
 	}
 
 	@Override

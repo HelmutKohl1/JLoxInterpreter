@@ -97,15 +97,27 @@ public class Interpreter implements Visitor<Object> {
 			checkNumberOperand(expr.operator, left, right);
 			return (double)left <= (double)right;
 		case EQUAL_EQUAL:
-			checkNumberOperand(expr.operator, left, right);
 			return isEqual(left, right);
 		case BANG_EQUAL:
-			checkNumberOperand(expr.operator, left, right);
 			return !isEqual(left, right);
 		}
 		
 		//Unreachable
 		return null;
+	}
+	
+	@Override
+	public Object visitTernaryExpr(Ternary expr) {
+		Object condition = evaluate(expr.cond);
+		if (isTruthy(condition)) {
+			return evaluate(expr.left);
+		}
+		return evaluate(expr.right);
+	}
+
+	@Override
+	public Object visitBinaryErrorExpr(BinaryError expr) {
+		throw new RuntimeError(expr.operator, "\'" + expr.operator.lexeme + "\' requires two operands.");
 	}
 	
 	private void checkNumberOperand(Token operator, Object operand) {
@@ -147,15 +159,5 @@ public class Interpreter implements Visitor<Object> {
 		}
 		
 		return object.toString();
-	}
-	
-	@Override
-	public Object visitTernaryExpr(Ternary expr) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object visitBinaryErrorExpr(BinaryError expr) {
-		throw new UnsupportedOperationException();
 	}
 }

@@ -27,7 +27,7 @@ public class RPNFormatter implements Visitor<String> {
 
 	@Override
 	public String visitBinaryErrorExpr(BinaryError expr) {
-		return revPolish(expr.operator, expr.right);
+		return revPolish(expr.operator.lexeme, expr.right);
 	}
 	
 	@Override

@@ -164,8 +164,7 @@ class Parser {
 		advance();
 		try {
 			Expr right = primary();
-			// Might want to consider a re-imp of BinaryError...
-			return new Expr.BinaryError(operator.lexeme + "E", right);
+			return new Expr.BinaryError(operator, right);
 		}catch(java.lang.Exception e) {
 			throw error(peek(), "Expression expected");
 		}	
