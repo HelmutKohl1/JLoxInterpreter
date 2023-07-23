@@ -78,6 +78,13 @@ public class Interpreter implements Visitor<Object> {
 			if (left instanceof Double && right instanceof Double) {
 				return (double)left + (double)right;
 			}
+			if (left instanceof String || right instanceof String) {
+				if (left instanceof String) {
+					return left + stringify(right);
+				}else {
+					return stringify(left) + right;
+				}
+			}
 			if (left instanceof String && right instanceof String) {
 				return (String)left + (String)right;
 			}
