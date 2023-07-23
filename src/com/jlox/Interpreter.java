@@ -72,6 +72,9 @@ public class Interpreter implements Visitor<Object> {
 			return (double)left * (double)right;
 		case SLASH:
 			checkNumberOperand(expr.operator, left, right);
+			if ((double)right == 0) {
+				throw new RuntimeError(expr.operator, "Division by zero.");
+			}
 			return (double)left / (double)right;
 		case PLUS:
 			// Dynamic type-checking
