@@ -1,14 +1,16 @@
 package com.jlox;
 
+import java.util.List;
+
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Ternary;
 import com.jlox.Expr.Unary;
-import com.jlox.Expr.Visitor;
 
-public class Interpreter implements Visitor<Object> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
+	
 	/* This interpreter is doing a post-order traversal, i.e. it evaluates a node's children
 	 * before itself.
 	 * 
@@ -16,10 +18,11 @@ public class Interpreter implements Visitor<Object> {
 	 * 
 	 * */
 	
-	void interpret(Expr expression) {
+	void interpret(List<Stmt> statements) {
 		try {
-			Object value = evaluate(expression);
-			System.out.println(stringify(value));
+			for (Stmt statement : statements) {
+				execute(statement);
+			}
 		}catch(RuntimeError e) {
 			Lox.runtimeError(e);
 		}
@@ -155,6 +158,25 @@ public class Interpreter implements Visitor<Object> {
 	private Object evaluate(Expr expr) {
 		/* Sends the expression back to the interpreter's visitor method for whatever type expr is. */
 		return expr.accept(this);
+	}
+	
+	private Void execute(Stmt statement) {
+		/* Calls the statement's accept method on the interpreter, which in turn calls the correct 
+		 * visit method depending on the type of 'statement' */
+		return statement.accept(this);
+	}
+	
+	@Override
+	public Void visitExpressionStmt(Stmt.Expression stmt) {
+		evaluate(stmt.expression);
+		return null;
+	}
+	
+	@Override
+	public Void visitPrintStmt(Stmt.Print stmt) {
+		Object value = evaluate(stmt.expression);
+		System.out.println(stringify(value));
+		return null;
 	}
 
 	private String stringify(Object object) {
