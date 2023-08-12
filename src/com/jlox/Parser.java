@@ -15,6 +15,13 @@ class Parser {
 	private static class ParseError extends RuntimeException{}
 	
 	private final List<Token> tokens;
+	private enum BinaryOps {
+			AND, OR, PLUS, MINUS, SLASH, STAR, BANG_EQUAL,
+			EQUAL, EQUAL_EQUAL,
+			GREATER, GREATER_EQUAL,
+			LESS, LESS_EQUAL
+	}
+	
 	private int current = 0;
 	
 	Parser(List<Token> tokens){
@@ -26,12 +33,12 @@ class Parser {
 		List<Stmt> statements = new ArrayList<>();
 		
 		while(!isAtEnd()) {
-			statements.add(statement());
+			statements.add(declaration());
 		}
 		
 		return statements;
 	}
-	
+
 	private Stmt statement() {
 		if (match(PRINT)) {
 			return printStatement();
@@ -44,6 +51,17 @@ class Parser {
 		consume(SEMICOLON, "Expect ';' after value.");
 		return new Stmt.Print(value);
 	}
+	
+	private Stmt variableDeclaration() {
+		Token name = consume(IDENTIFIER, "Expect a variable identifier.");
+		Expr initializer = null;
+		if (match(EQUAL)){
+			initializer = expression();
+		}
+		
+		consume(SEMICOLON, "Expect ';' after variable declaration.");
+		return new Stmt.Var(name, initializer);
+	}
 
 	private Stmt expressionStatement() {
 		Expr expression = expression();
@@ -55,6 +73,21 @@ class Parser {
 	
 	private Expr expression() {
 		return comma();
+	}
+	
+	
+	private Stmt declaration() {
+		/* Method for parsing a variable declaration */
+		try {
+			if(match(VAR)) { 
+				return variableDeclaration();
+			}
+			
+			return statement();
+		} catch(ParseError e) {
+			synchronize();
+			return null;
+		}
 	}
 
 	private Expr comma() {
@@ -157,6 +190,12 @@ class Parser {
 	}
 	
 	private Expr primary() {
+		
+		boolean binErrorCond = match(PLUS) || match(MINUS) || match(SLASH) || match(STAR)
+				|| match(EQUAL) || match(EQUAL_EQUAL) || match(BANG_EQUAL) || match(LESS)
+				|| match(LESS_EQUAL) || match(GREATER) || match(GREATER_EQUAL) || match(AND) 
+				|| match(OR);
+				
 		if (match(FALSE)) {
 			return new Expr.Literal(FALSE);
 		}
@@ -173,12 +212,17 @@ class Parser {
 			Expr expr = expression();
 			consume(RIGHT_PAREN, "Expect ')' after expression.");
 			return new Expr.Grouping(expr);
-		} else {
+		} 
+		else if (match(IDENTIFIER)) {
+			return new Expr.Variable(previous());
+		}
+		else if (binErrorCond){//changed from 'else' to make error throw reachable
+			//condition needs revising - dirty but functional atm
 			return binaryError();
 		}
 		
 		// If the parser has found a token that cannot start a statement:
-		//throw error(peek(), "Expression expected");
+		throw error(peek(), "Expression expected");
 	}
 	
 	private Expr binaryError() { 

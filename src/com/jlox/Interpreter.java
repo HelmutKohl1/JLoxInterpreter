@@ -14,9 +14,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	/* This interpreter is doing a post-order traversal, i.e. it evaluates a node's children
 	 * before itself.
 	 * 
-	 * Essentially, this class converts Exprs in Objects.
+	 * Essentially, this class converts Stmts/Exprs to Objects.
 	 * 
 	 * */
+	
+	private Environment environment = new Environment();
 	
 	void interpret(List<Stmt> statements) {
 		try {
@@ -55,6 +57,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 		return null;
 	}
 
+	@Override
+	public Object visitVariableExpr(Expr.Variable expr) {
+		return environment.get(expr.name);
+	}
+	
 	@Override
 	public Object visitBinaryExpr(Binary expr) {
 		/* Note that the operands are evaluated left to right, so if they have
@@ -179,6 +186,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 		return null;
 	}
 
+	@Override
+	public Void visitVarStmt(Stmt.Var stmt) {
+		Object value = null;
+		if (stmt.initializer != null ) {
+			value = evaluate(stmt.initializer);
+		}		
+		environment.define(stmt.name.lexeme, value);
+		return null;
+	}
+	
 	private String stringify(Object object) {
 		if (object == null) return "nil";
 		if (object instanceof Double) {
