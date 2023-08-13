@@ -6,6 +6,7 @@ import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Unary;
+import com.jlox.Expr.Variable;
 
 public class AstPrinter implements Expr.Visitor<String> {
 
@@ -68,6 +69,11 @@ public class AstPrinter implements Expr.Visitor<String> {
 						new Expr.Literal(45.23)));
 		
 		System.out.println(new AstPrinter().print(expression));
+	}
+
+	@Override
+	public String visitVariableExpr(Variable expr) {
+		return expr.name.lexeme;
 	}
 
 }
