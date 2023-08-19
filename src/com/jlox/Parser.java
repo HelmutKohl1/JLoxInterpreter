@@ -72,7 +72,30 @@ class Parser {
 	/*Methods for each expression type*/
 	
 	private Expr expression() {
-		return comma();
+		return assignment();
+		//return comma();
+	}
+	
+	private Expr assignment() {
+		Expr expression = comma();
+		
+		if (match(EQUAL)) {
+			Token equals = previous();
+			Expr value = assignment();
+			
+			// ensures the lhs is a valid assignment target
+			if (expression instanceof Expr.Variable) {
+				Token name = ((Expr.Assign)expression).name;
+				// converting the r-value expression into an l-value representation
+				/* this is great when we have assignment expressions where the assignment target is
+				 * also a stand-alone variable expression.*/
+				return new Expr.Assign(name, value);
+			}
+			
+			error(equals, "Invalid assignment target.");
+		}
+		
+		return expression;
 	}
 	
 	
