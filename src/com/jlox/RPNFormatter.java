@@ -1,5 +1,6 @@
 package com.jlox;
 
+import com.jlox.Expr.Assign;
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Grouping;
@@ -63,5 +64,10 @@ public class RPNFormatter implements Expr.Visitor<String> {
 	@Override
 	public String visitVariableExpr(Variable expr) {
 		return revPolish(expr.name.lexeme);
+	}
+
+	@Override
+	public String visitAssignExpr(Assign expr) {
+		return revPolish(expr.name.lexeme, expr.value);
 	}
 }

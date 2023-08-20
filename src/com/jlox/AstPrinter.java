@@ -1,6 +1,7 @@
 package com.jlox;
 
 import com.jlox.Expr.Ternary;
+import com.jlox.Expr.Assign;
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Grouping;
@@ -74,6 +75,11 @@ public class AstPrinter implements Expr.Visitor<String> {
 	@Override
 	public String visitVariableExpr(Variable expr) {
 		return expr.name.lexeme;
+	}
+
+	@Override
+	public String visitAssignExpr(Assign expr) {
+		return parenthesize(expr.name.lexeme, expr.value);
 	}
 
 }
