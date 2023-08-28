@@ -99,7 +99,7 @@ class Parser {
 			
 			// ensures the lhs is a valid assignment target
 			if (expression instanceof Expr.Variable) {
-				Token name = ((Expr.Assign)expression).name;
+				Token name = ((Expr.Variable)expression).name;
 				// converting the r-value expression into an l-value representation
 				/* this is great when we have assignment expressions where the assignment target is
 				 * also a stand-alone variable expression.*/

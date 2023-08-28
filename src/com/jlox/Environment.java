@@ -2,11 +2,14 @@ package com.jlox;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 class Environment {
 	
 	final Environment enclosing;
 	private final Map<String, Object> values = new HashMap<>();
+	private List<String> declaredOnly = new ArrayList<String>();
 	
 	Environment(){
 		enclosing = null;
@@ -17,7 +20,10 @@ class Environment {
 	}
 	
 	Object get(Token name) {
-		if(values.containsKey(name.lexeme)) {
+		if (declaredOnly.contains(name.lexeme)) {
+			throw new RuntimeError(name, "Uninitialized variable '" + name.lexeme + "'.");
+		}
+		else if(values.containsKey(name.lexeme)) {
 			return values.get(name.lexeme);
 		}
 		if (enclosing != null) {
@@ -27,7 +33,15 @@ class Environment {
 	}
 	
 	void define(String name, Object value) {
-		values.put(name, value);
+		/* when a variable is declared, but not defined, we put it in a separate
+		 * list, rather than in the values Map*/
+		if (value != null) {
+			values.put(name, value);
+			System.out.println(name + "added to values");
+		}
+		else {
+			declaredOnly.add(name);
+		}
 	}
 	
 	void assign(Token name, Object value) {
@@ -35,6 +49,14 @@ class Environment {
 			values.put(name.lexeme, value);
 			return;
 		}
+		else if (declaredOnly.contains(name.lexeme)) {
+			/* if the token has already been  declared but not defined, we move it
+			 * from the list of declaredOnly and add it to the main values Map*/
+			declaredOnly.remove(name.lexeme);
+			values.put(name.lexeme, value);
+			return;
+		}
+		
 		if (enclosing != null) {
 			enclosing.assign(name, value);
 			return;
