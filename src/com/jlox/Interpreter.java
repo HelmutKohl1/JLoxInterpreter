@@ -50,6 +50,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 		}
 		
 		return evaluate(expr.right);
+		// the expression "hi" or 2 returns "hi", not true.
 	}
 	
 	@Override
@@ -237,6 +238,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 			value = evaluate(stmt.initializer);
 		}		
 		environment.define(stmt.name.lexeme, value);
+		return null;
+	}
+	
+	@Override
+	public Void visitWhileStmt(Stmt.While stmt) {
+		while (isTruthy(stmt.condition)) {
+			execute(stmt.body);
+		}		
 		return null;
 	}
 	
