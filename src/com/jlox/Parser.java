@@ -1,6 +1,7 @@
 package com.jlox;
 
 import java.util.List;
+import java.util.Arrays;
 import java.util.ArrayList;
 
 import static com.jlox.TokenType.*;
@@ -40,6 +41,9 @@ class Parser {
 	}
 
 	private Stmt statement() {
+		if (match(FOR)) {
+			return forStatement();
+		}
 		if (match (IF)) {
 			return ifStatement();
 		}
@@ -55,6 +59,33 @@ class Parser {
 		return expressionStatement();
 	}
 
+	private Stmt forStatement() {
+		consume(LEFT_PAREN, "Expect '(' after 'for'.");
+		Stmt initializer;
+		if (match(SEMICOLON)) {
+			initializer = null;
+		}
+		else if (match(VAR)) {
+			initializer = variableDeclaration();
+		}
+		else {
+			initializer = expressionStatement();
+		}
+		
+		Expr condition = null;
+		if (!check(SEMICOLON)) {//use check() not match() here because we can't have an empty condition
+			condition = expression();
+		}
+		consume(SEMICOLON, "Expect ';' after loop condition.");
+
+		Expr increment = null;
+		if (!check(RIGHT_PAREN)) {
+			increment = expression();
+		}
+		consume(RIGHT_PAREN, "Expect ')' after increment expression");
+		
+	}
+	
 	private Stmt ifStatement() {
 		consume(LEFT_PAREN, "Expect '(' after 'if'");
 		Expr condition = expression();
