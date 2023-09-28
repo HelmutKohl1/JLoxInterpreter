@@ -6,6 +6,7 @@ import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Literal;
+import com.jlox.Expr.Logical;
 import com.jlox.Expr.Ternary;
 import com.jlox.Expr.Unary;
 
@@ -34,6 +35,21 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	@Override
 	public Object visitLiteralExpr(Literal expr) {
 		return expr.value;
+	}
+	
+	@Override
+	public Object visitLogicalExpr(Logical expr) {
+		Object left = evaluate(expr.left);
+		
+		// Logical short-circuiting
+		if (expr.operator.type == TokenType.OR) {
+			if (isTruthy(left)) return left;
+		} 
+		else {
+			if (!isTruthy(left)) return left;
+		}
+		
+		return evaluate(expr.right);
 	}
 	
 	@Override
@@ -194,6 +210,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	@Override
 	public Void visitExpressionStmt(Stmt.Expression stmt) {
 		evaluate(stmt.expression);
+		return null;
+	}
+	
+	@Override
+	public Void visitIfStmt(Stmt.If stmt) {
+		if (isTruthy(evaluate(stmt.condition))) {
+			execute(stmt.thenBranch);
+		} else if (stmt.elseBranch != null) {
+			execute(stmt.elseBranch);
+		}
 		return null;
 	}
 	

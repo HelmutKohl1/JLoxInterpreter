@@ -40,6 +40,9 @@ class Parser {
 	}
 
 	private Stmt statement() {
+		if (match (IF)) {
+			return ifStatement();
+		}
 		if (match(PRINT)) {
 			return printStatement();
 		}
@@ -49,6 +52,20 @@ class Parser {
 		return expressionStatement();
 	}
 
+	private Stmt ifStatement() {
+		consume(LEFT_PAREN, "Expect '(' after 'if'");
+		Expr condition = expression();
+		consume(RIGHT_PAREN, "Expect ') after 'if' condition");
+		
+		Stmt thenBranch = statement();
+		Stmt elseBranch = null;
+		if (match(ELSE)) {
+			elseBranch = statement();
+		}
+		
+		return new Stmt.If(condition, thenBranch, elseBranch);
+	}
+	
 	private List<Stmt> block() {
 		List<Stmt> statements = new ArrayList<Stmt>();
 		while(!check(RIGHT_BRACE) && !isAtEnd()) {
@@ -91,7 +108,8 @@ class Parser {
 	}
 	
 	private Expr assignment() {
-		Expr expression = comma();
+		//Expr expression = comma();
+		Expr expression = or();
 		
 		if (match(EQUAL)) {
 			Token equals = previous();
@@ -112,6 +130,26 @@ class Parser {
 		return expression;
 	}
 	
+	private Expr or() {
+		Expr expr = and();
+		while (match(OR)) {
+			Token operator = previous();
+			Expr right = and();
+			expr = new Expr.Logical(expr, null, right);
+		}
+		return expr;
+	}
+	
+	private Expr and() {
+		Expr expr = comma();
+		
+		while (match(AND)) {
+			Token operator = previous();
+			Expr right = comma();
+			expr = new Expr.Logical(expr, operator, right);
+		}
+		return expr;
+	}
 	
 	private Stmt declaration() {
 		/* Method for parsing a variable declaration */

@@ -6,6 +6,7 @@ import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Literal;
+import com.jlox.Expr.Logical;
 import com.jlox.Expr.Unary;
 import com.jlox.Expr.Variable;
 
@@ -44,6 +45,10 @@ public class AstPrinter implements Expr.Visitor<String> {
 	@Override
 	public String visitUnaryExpr(Unary expr) {
 		return parenthesize(expr.operator.lexeme, expr.right);
+	}
+	
+	public String visitLogicalExpr(Logical expr) {
+		return parenthesize(expr.operator.lexeme, expr.left, expr.right);
 	}
 	
 	// Uses varargs to accept different numbers of arguments of the same type
