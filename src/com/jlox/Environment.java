@@ -37,7 +37,7 @@ class Environment {
 		 * list, rather than in the values Map*/
 		if (value != null) {
 			values.put(name, value);
-			System.out.println(name + "added to values");
+			//System.out.println(name + "added to values");
 		}
 		else {
 			declaredOnly.add(name);

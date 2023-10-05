@@ -22,8 +22,8 @@ class Parser {
 			GREATER, GREATER_EQUAL,
 			LESS, LESS_EQUAL
 	}
-	
 	private int current = 0;
+	private boolean insideLoop = false;
 	
 	Parser(List<Token> tokens){
 		this.tokens = tokens;
@@ -56,9 +56,25 @@ class Parser {
 		if (match(LEFT_BRACE)) {
 			return new Stmt.Block(block());
 		}
+		if (match(BREAK)) {
+			//throw syntax error - old idea
+//			System.out.println("break inside statement");
+//			consume(SEMICOLON, "Expect ';' after 'break' statement.");
+//			return new Stmt.Break(null);
+			return breakStatement();
+		}
 		return expressionStatement();
 	}
 
+	private Stmt breakStatement() {		
+		System.out.println("break statement");
+		if(insideLoop) {
+			consume(SEMICOLON, "Expect ';' after 'break' statement.");
+			return new Stmt.Break(null);
+		}
+		throw error(peek(), "'break' statement cannot occur outside a loop.");
+	}
+	
 	private Stmt forStatement() {
 		consume(LEFT_PAREN, "Expect '(' after 'for'.");
 		Stmt initializer;
@@ -82,8 +98,23 @@ class Parser {
 		if (!check(RIGHT_PAREN)) {
 			increment = expression();
 		}
-		consume(RIGHT_PAREN, "Expect ')' after increment expression");
+		consume(RIGHT_PAREN, "Expect ')' after for clauses.");
 		
+		insideLoop = true;
+		Stmt body = statement();
+		
+		if (increment != null) {
+			body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
+			
+		}
+		if (condition == null) condition = new Expr.Literal(true);
+		body = new Stmt.While(condition, body);
+		if (initializer != null) {
+			body = new Stmt.Block(Arrays.asList(initializer, body));
+		}
+		
+		insideLoop = false;
+		return body;
 	}
 	
 	private Stmt ifStatement() {
@@ -129,11 +160,13 @@ class Parser {
 	}
 
 	private Stmt whileStatement() {
+		insideLoop = true;
 		consume(LEFT_PAREN, "Expect '(' after 'while' keyword.");
 		Expr condition = expression();
 		consume(RIGHT_PAREN, "Expect ')' after condition.");
 		Stmt body = statement();
 		
+		insideLoop = false;
 		return new Stmt.While(condition, body);
 	}
 	
@@ -178,7 +211,7 @@ class Parser {
 		while (match(OR)) {
 			Token operator = previous();
 			Expr right = and();
-			expr = new Expr.Logical(expr, null, right);
+			expr = new Expr.Logical(expr, operator, right);
 		}
 		return expr;
 	}
@@ -315,13 +348,13 @@ class Parser {
 				|| match(OR);
 				
 		if (match(FALSE)) {
-			return new Expr.Literal(FALSE);
+			return new Expr.Literal(false);
 		}
 		else if (match(TRUE)) {
-			return new Expr.Literal(TRUE);
+			return new Expr.Literal(true);
 		}
 		else if (match(NIL)) {
-			return new Expr.Literal(NIL);
+			return new Expr.Literal(null);
 		}
 		else if (match(NUMBER, STRING)) {
 			return new Expr.Literal(previous().literal);
@@ -333,6 +366,9 @@ class Parser {
 		} 
 		else if (match(IDENTIFIER)) {
 			return new Expr.Variable(previous());
+		}
+		else if (match(BREAK)) {
+			throw error(peek(), "Break statement cannot be used outside of a loop.");
 		}
 		else if (binErrorCond){//changed from 'else' to make error throw reachable
 			//condition needs revising - dirty but functional atm

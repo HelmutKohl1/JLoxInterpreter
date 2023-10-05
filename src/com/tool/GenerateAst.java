@@ -35,7 +35,8 @@ public class GenerateAst {
 				"If: Expr condition, Stmt thenBranch, Stmt elseBranch",
 				"Print: Expr expression",
 				"Var: Token name, Expr initializer",
-				"While: Expr condition, Stmt body"));
+				"While: Expr condition, Stmt body",
+				"Break: Stmt.While enclosing"));
 	}
 
 	private static void defineAst(String outputDir, String baseName, List<String> types) throws IOException {

@@ -2,13 +2,7 @@ package com.jlox;
 
 import java.util.List;
 
-import com.jlox.Expr.Binary;
-import com.jlox.Expr.BinaryError;
-import com.jlox.Expr.Grouping;
-import com.jlox.Expr.Literal;
-import com.jlox.Expr.Logical;
-import com.jlox.Expr.Ternary;
-import com.jlox.Expr.Unary;
+
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
@@ -20,6 +14,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	 * */
 	
 	private Environment environment = new Environment();
+	private boolean breakActive = false;
 	
 	void interpret(List<Stmt> statements) {
 		try {
@@ -33,12 +28,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
 
 	@Override
-	public Object visitLiteralExpr(Literal expr) {
+	public Object visitLiteralExpr(Expr.Literal expr) {
 		return expr.value;
 	}
 	
 	@Override
-	public Object visitLogicalExpr(Logical expr) {
+	public Object visitLogicalExpr(Expr.Logical expr) {
 		Object left = evaluate(expr.left);
 		
 		// Logical short-circuiting
@@ -54,12 +49,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	}
 	
 	@Override
-	public Object visitGroupingExpr(Grouping expr) {
+	public Object visitGroupingExpr(Expr.Grouping expr) {
 		return evaluate(expr.expression);
 	}
 	
 	@Override
-	public Object visitUnaryExpr(Unary expr) {
+	public Object visitUnaryExpr(Expr.Unary expr) {
 		Object right = evaluate(expr.right);
 		
 		switch (expr.operator.type) {
@@ -80,7 +75,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	}
 	
 	@Override
-	public Object visitBinaryExpr(Binary expr) {
+	public Object visitBinaryExpr(Expr.Binary expr) {
 		/* Note that the operands are evaluated left to right, so if they have
 		 * side-effects, this will matter. 
 		 * 
@@ -144,7 +139,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	}
 	
 	@Override
-	public Object visitTernaryExpr(Ternary expr) {
+	public Object visitTernaryExpr(Expr.Ternary expr) {
 		Object condition = evaluate(expr.cond);
 		if (isTruthy(condition)) {
 			return evaluate(expr.left);
@@ -153,7 +148,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	}
 
 	@Override
-	public Object visitBinaryErrorExpr(BinaryError expr) {
+	public Object visitBinaryErrorExpr(Expr.BinaryError expr) {
 		throw new RuntimeError(expr.operator, "\'" + expr.operator.lexeme + "\' requires two operands.");
 	}
 	
@@ -243,9 +238,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
 	@Override
 	public Void visitWhileStmt(Stmt.While stmt) {
-		while (isTruthy(stmt.condition)) {
+		while (isTruthy(evaluate(stmt.condition)) && !breakActive) {
 			execute(stmt.body);
-		}		
+		}
+		if (breakActive) breakActive = false;// where to put this?
+		return null;
+	}
+	
+	@Override
+	public Void visitBreakStmt(Stmt.Break stmt) {
+		System.out.println("Break statement hit by interpreter.");
+		breakActive = true;
 		return null;
 	}
 	
