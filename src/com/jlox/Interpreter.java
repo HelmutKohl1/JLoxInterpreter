@@ -238,16 +238,22 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
 	@Override
 	public Void visitWhileStmt(Stmt.While stmt) {
-		while (isTruthy(evaluate(stmt.condition)) && !breakActive) {
-			execute(stmt.body);
+		while (isTruthy(evaluate(stmt.condition))) {
+			if (breakActive) { 
+				System.out.println("breakActive = false");
+				breakActive = false;
+				return null;
+			}
+			else {			
+				execute(stmt.body);
+			}
 		}
-		if (breakActive) breakActive = false;// where to put this?
 		return null;
 	}
 	
 	@Override
 	public Void visitBreakStmt(Stmt.Break stmt) {
-		System.out.println("Break statement hit by interpreter.");
+		System.out.println("breakActive = true");
 		breakActive = true;
 		return null;
 	}
