@@ -1,6 +1,9 @@
 package com.jlox;
 
 import com.jlox.Expr.Ternary;
+
+import java.util.List;
+
 import com.jlox.Expr.Assign;
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
@@ -9,11 +12,22 @@ import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
 import com.jlox.Expr.Unary;
 import com.jlox.Expr.Variable;
+import com.jlox.Stmt.Block;
+import com.jlox.Stmt.Break;
+import com.jlox.Stmt.Expression;
+import com.jlox.Stmt.If;
+import com.jlox.Stmt.Print;
+import com.jlox.Stmt.Var;
+import com.jlox.Stmt.While;
 
-public class AstPrinter implements Expr.Visitor<String> {
+public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
 	String print(Expr expr) {
 		return expr.accept(this);
+	}
+	
+	String print(Stmt stmt) {
+		return stmt.accept(this);
 	}
 	
 	@Override
@@ -64,6 +78,30 @@ public class AstPrinter implements Expr.Visitor<String> {
 		return builder.toString();
 	}
 	
+	private String parenthesizeStmt(String name, Stmt... stmt) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("(").append(name);
+		for(Stmt st : stmt) {
+			builder.append(" ");
+			builder.append(st.accept(this));
+		}
+		builder.append(")");
+		return builder.toString();
+	}
+	
+	private String parenthesizeStmt(String name, List<Stmt> statements) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("(").append(name);
+		for(Stmt st : statements) {
+			builder.append(" ");
+			builder.append(st.accept(this));
+		}
+		builder.append(")");
+		return builder.toString();
+	}
+	
 	// Dummy method to just generate an example AST and print it out
 	public static void demo() {
 		Expr expression = new Binary(
@@ -79,12 +117,58 @@ public class AstPrinter implements Expr.Visitor<String> {
 
 	@Override
 	public String visitVariableExpr(Variable expr) {
-		return expr.name.lexeme;
+		return parenthesize(expr.name.lexeme);
 	}
 
 	@Override
 	public String visitAssignExpr(Assign expr) {
 		return parenthesize(expr.name.lexeme, expr.value);
+	}
+
+	@Override
+	public String visitBlockStmt(Block stmt) {
+		return parenthesizeStmt("block: ", stmt.statements);
+	}
+
+	@Override
+	public String visitExpressionStmt(Expression stmt) {
+		return parenthesize("expr: ", stmt.expression);
+	}
+
+	@Override
+	public String visitIfStmt(If stmt) {
+		String topline =  parenthesize("if: ", stmt.condition);
+		if (stmt.elseBranch != null) {
+			return parenthesizeStmt(topline, stmt.thenBranch, stmt.elseBranch);
+		} else {
+			return parenthesizeStmt(topline, stmt.thenBranch);
+		}
+	}
+
+	@Override
+	public String visitPrintStmt(Print stmt) {
+		return parenthesize("print: ", stmt.expression);
+	}
+
+	@Override
+	public String visitVarStmt(Var stmt) {
+		if (stmt.initializer != null) {
+			return parenthesize("var: " + stmt.name.lexeme, stmt.initializer);
+		} else {
+			return parenthesize("var: " + stmt.name.lexeme);
+		}
+
+	}
+
+	@Override
+	public String visitWhileStmt(While stmt) {
+		String topline = parenthesize("while: ", stmt.condition);
+		return parenthesizeStmt(topline, stmt.body);
+	}
+
+	@Override
+	public String visitBreakStmt(Break stmt) {
+		return "break";
 	}
 
 }

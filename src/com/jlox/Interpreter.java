@@ -190,6 +190,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 		try {
 			this.environment = environment;
 			for(Stmt stmt : statements) {
+				if(breakActive) {
+					//System.out.println("breakActive = false - executeBlock");
+					//breakActive = false;
+					break;
+				}
 				execute(stmt);
 			}
 		} finally {
@@ -242,6 +247,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 			if (breakActive) { 
 				System.out.println("breakActive = false");
 				breakActive = false;
+				//break;
 				return null;
 			}
 			else {			

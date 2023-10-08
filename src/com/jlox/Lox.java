@@ -62,6 +62,11 @@ public class Lox {
 		Parser parser = new Parser(tokens);
 		List<Stmt> statements = parser.parse();
 		
+		AstPrinter printer = new AstPrinter();
+		for(Stmt statement : statements) {
+			System.out.println(printer.print(statement));
+		}
+		
 		if(hadError) return;
 		
 		interpreter.interpret(statements);
@@ -100,6 +105,10 @@ public class Lox {
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.scanTokens(); 
 		printTokens(tokens); // print the tokens
+	}
+	
+	private static void printAST() {
+		
 	}
 	
 	private static void demoRPNFormatter() {

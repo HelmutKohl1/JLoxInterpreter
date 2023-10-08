@@ -67,7 +67,6 @@ class Parser {
 	}
 
 	private Stmt breakStatement() {		
-		System.out.println("break statement");
 		if(insideLoop) {
 			consume(SEMICOLON, "Expect ';' after 'break' statement.");
 			return new Stmt.Break(null);
