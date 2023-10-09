@@ -192,10 +192,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 			this.environment = environment;
 			for(Stmt stmt : statements) {
 				if(breakActive) {
-					System.out.println("break hit in executeBlock");
 					breakInsideBlockStmt = true;
-					//System.out.println("breakActive = false - executeBlock");
-					//breakActive = false;
 					break;
 				}
 				execute(stmt);
@@ -248,13 +245,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	public Void visitWhileStmt(Stmt.While stmt) {
 		while (isTruthy(evaluate(stmt.condition))) {
 			if (breakActive) { 
-				System.out.println("breakActive = false");
 				breakActive = false;
 				if (breakInsideBlockStmt) {
 					breakInsideBlockStmt = false;
 					break;
 				}
-				//return null;
 			}
 			else {			
 				execute(stmt.body);
