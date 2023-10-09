@@ -15,6 +15,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
 	private Environment environment = new Environment();
 	private boolean breakActive = false;
+	private boolean breakInsideBlockStmt = false;
 	
 	void interpret(List<Stmt> statements) {
 		try {
@@ -191,6 +192,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 			this.environment = environment;
 			for(Stmt stmt : statements) {
 				if(breakActive) {
+					System.out.println("break hit in executeBlock");
+					breakInsideBlockStmt = true;
 					//System.out.println("breakActive = false - executeBlock");
 					//breakActive = false;
 					break;
@@ -247,8 +250,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 			if (breakActive) { 
 				System.out.println("breakActive = false");
 				breakActive = false;
-				//break;
-				return null;
+				if (breakInsideBlockStmt) {
+					breakInsideBlockStmt = false;
+					break;
+				}
+				//return null;
 			}
 			else {			
 				execute(stmt.body);
