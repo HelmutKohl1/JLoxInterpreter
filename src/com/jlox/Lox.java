@@ -9,8 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import com.jlox.Expr.Grouping;
-
 public class Lox {
 	
 	private static final Interpreter interpreter = new Interpreter();
