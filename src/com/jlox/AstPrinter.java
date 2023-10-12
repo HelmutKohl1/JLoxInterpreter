@@ -7,6 +7,7 @@ import java.util.List;
 import com.jlox.Expr.Assign;
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
+import com.jlox.Expr.Call;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
@@ -63,6 +64,12 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 	
 	public String visitLogicalExpr(Logical expr) {
 		return parenthesize(expr.operator.lexeme, expr.left, expr.right);
+	}
+	
+	@Override
+	public String visitCallExpr(Call expr) {
+		// TODO Auto-generated method stub
+		return parenthesize(expr.callee.toString(), expr.arguments.toArray(new Expr[1]));
 	}
 	
 	// Uses varargs to accept different numbers of arguments of the same type
@@ -170,5 +177,4 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 	public String visitBreakStmt(Break stmt) {
 		return "break";
 	}
-
 }

@@ -3,6 +3,7 @@ package com.jlox;
 import com.jlox.Expr.Assign;
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
+import com.jlox.Expr.Call;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
@@ -49,6 +50,11 @@ public class RPNFormatter implements Expr.Visitor<String> {
 		return revPolish(expr.operator.lexeme, expr.right);
 	}
 
+	@Override 
+	public String visitCallExpr(Call expr) {
+		return revPolish(expr.callee.toString(), expr.arguments.toArray(new Expr[0]));
+	}
+	
 	private String revPolish(String name, Expr... exprs) {
 		StringBuilder builder = new StringBuilder();
 
