@@ -7,9 +7,12 @@ import com.jlox.Stmt.Function;
 public class LoxFunction implements LoxCallable {
 
 	private final Stmt.Function declaration;
+	private final Environment closure;
 	
-	LoxFunction(Stmt.Function declaration){
+	
+	LoxFunction(Stmt.Function declaration, Environment closure){
 		this.declaration = declaration;
+		this.closure = closure;
 	}
 	
 	
@@ -20,11 +23,14 @@ public class LoxFunction implements LoxCallable {
 
 	@Override
 	public Object call(Interpreter interpreter, List<Object> arguments) {
-		/* create a new environment for the function *call's* own scope, with the global scope as the
-		enclosing scope. 
-		Giving each call its own environment allows recursion to happen.
+		/* create a new environment for the function *call's* own scope, with the enclosing scope 
+		 * set to that which lexically encloses it. this allows closures to be possible.
+		 * 
+		 * This creates an environment chain that matches the lexical scoping of the
+		 * function's code.
+		 * Giving each call its own environment allows recursion to happen.
 		*/
-		Environment environment = new Environment(interpreter.globals);
+		Environment environment = new Environment(closure);
 		for(int i = 0; i < declaration.params.size(); i++) {
 			environment.define(declaration.params.get(i).lexeme, arguments.get(i));
 		}
