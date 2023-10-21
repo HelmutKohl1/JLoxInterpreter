@@ -278,6 +278,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 		System.out.println(stringify(value));
 		return null;
 	}
+	
+	@Override
+	public Void visitReturnStmt(Stmt.Return stmt) {
+		Object value = null;
+		if (stmt.value != null) {
+			value = evaluate(stmt.value);
+		}
+		throw new Return(value);
+	}
 
 	@Override
 	public Void visitVarStmt(Stmt.Var stmt) {

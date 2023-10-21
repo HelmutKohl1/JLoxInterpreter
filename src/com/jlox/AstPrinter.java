@@ -16,8 +16,10 @@ import com.jlox.Expr.Variable;
 import com.jlox.Stmt.Block;
 import com.jlox.Stmt.Break;
 import com.jlox.Stmt.Expression;
+import com.jlox.Stmt.Function;
 import com.jlox.Stmt.If;
 import com.jlox.Stmt.Print;
+import com.jlox.Stmt.Return;
 import com.jlox.Stmt.Var;
 import com.jlox.Stmt.While;
 
@@ -68,7 +70,6 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 	
 	@Override
 	public String visitCallExpr(Call expr) {
-		// TODO Auto-generated method stub
 		return parenthesize(expr.callee.toString(), expr.arguments.toArray(new Expr[1]));
 	}
 	
@@ -176,5 +177,15 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 	@Override
 	public String visitBreakStmt(Break stmt) {
 		return "break";
+	}
+
+	@Override
+	public String visitFunctionStmt(Function stmt) {
+		return stmt.toString();
+	}
+
+	@Override
+	public String visitReturnStmt(Return stmt) {
+		return parenthesize(stmt.keyword.lexeme, stmt.value);
 	}
 }

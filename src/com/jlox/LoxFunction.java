@@ -15,20 +15,25 @@ public class LoxFunction implements LoxCallable {
 	
 	@Override
 	public int arity() {
-		// TODO Auto-generated method stub
-		return 0;
+		return declaration.params.size();
 	}
 
 	@Override
 	public Object call(Interpreter interpreter, List<Object> arguments) {
 		/* create a new environment for the function *call's* own scope, with the global scope as the
-		enclosing scope. */
+		enclosing scope. 
+		Giving each call its own environment allows recursion to happen.
+		*/
 		Environment environment = new Environment(interpreter.globals);
 		for(int i = 0; i < declaration.params.size(); i++) {
 			environment.define(declaration.params.get(i).lexeme, arguments.get(i));
 		}
 		
-		interpreter.executeBlock(declaration.body, environment);	
+		try {
+			interpreter.executeBlock(declaration.body, environment);	
+		}catch(Return returnValue) {
+			return returnValue.value;
+		}
 		return null;
 	}
 
