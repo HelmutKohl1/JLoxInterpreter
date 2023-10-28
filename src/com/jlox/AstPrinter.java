@@ -9,6 +9,7 @@ import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Call;
 import com.jlox.Expr.Grouping;
+import com.jlox.Expr.Lambda;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
 import com.jlox.Expr.Unary;
@@ -105,8 +106,10 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 		
 		builder.append("(").append(name);
 		for(Stmt st : statements) {
-			builder.append(" ");
-			builder.append(st.accept(this));
+			if (st != null) {
+				builder.append(" ");
+				builder.append(st.accept(this));
+			}
 		}
 		builder.append(")");
 		return builder.toString();
@@ -133,6 +136,12 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 	@Override
 	public String visitAssignExpr(Assign expr) {
 		return parenthesize(expr.name.lexeme, expr.value);
+	}
+	
+	@Override
+	public String visitLambdaExpr(Lambda expr) {
+		String declaration = parenthesize("lambda: " + expr.params.toString());
+		return parenthesizeStmt(declaration, expr.body);
 	}
 
 	@Override

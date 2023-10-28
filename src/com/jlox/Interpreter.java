@@ -194,6 +194,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 		throw new RuntimeError(expr.operator, "\'" + expr.operator.lexeme + "\' requires two operands.");
 	}
 	
+	@Override
+	public Object visitLambdaExpr(Expr.Lambda expr) {
+		return null;
+	}
+	
 	private void checkNumberOperand(Token operator, Object operand) {
 		if (operand instanceof Double) return;
 		throw new RuntimeError(operator, "Operand must be a number.");		

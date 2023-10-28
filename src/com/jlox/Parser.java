@@ -213,8 +213,31 @@ class Parser {
 	/*Methods for each expression type*/
 	
 	private Expr expression() {
+		if (match(FUN)) {
+			return lambdaFunction();
+		}
 		return assignment();
 		//return comma();
+	}
+	
+	private Expr lambdaFunction() {
+		consume(LEFT_PAREN, "Expect '(' after lambda function declaration.");
+		List<Token> params = new ArrayList<>();
+		
+		if (!check(RIGHT_PAREN)) {
+			do {
+				if (params.size() >= 255) {
+					error(peek(), "Cannot have more than 255 arguments.");
+				}
+				
+				params.add(consume(IDENTIFIER, "Expect parameter name."));
+			} while (match(COMMA));
+		}
+		
+		consume (RIGHT_PAREN, "Expect ')' after lambda function parameters.");		
+		consume(LEFT_BRACE, "Expect '{ before lambda function body.");
+		List<Stmt> body = block();
+		return new Expr.Lambda(params, body);
 	}
 	
 	private Expr assignment() {
@@ -262,10 +285,10 @@ class Parser {
 	}
 	
 	private Stmt declaration() {
-		/* Method for parsing a variable declaration */
+		/* Method for parsing a variable or function declaration */
 		try {
 			if (match(FUN)) {
-				return function("function");
+				return function("function");					
 			}
 			if(match(VAR)) { 
 				return variableDeclaration();

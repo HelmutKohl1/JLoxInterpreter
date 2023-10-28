@@ -60,7 +60,6 @@ public class Lox {
 		Parser parser = new Parser(tokens);
 		List<Stmt> statements = parser.parse();
 		
-		
 		AstPrinter printer = new AstPrinter();
 		for(Stmt statement : statements) {
 			System.out.println(printer.print(statement));

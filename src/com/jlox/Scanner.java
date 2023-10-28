@@ -196,7 +196,6 @@ class Scanner {
 	
 	private boolean isAlpha(char c) {
 		return Character.isLetter(c);
-		//return (c >= 'a' && c <= 'z') || (c >= 'A' && c>= 'Z');
 	}
 	
 	private boolean isAlphaNumeric(char c) {
