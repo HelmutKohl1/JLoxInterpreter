@@ -69,8 +69,8 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 	}
 	
 	@Override
-	public String visitCallExpr(Call expr) {
-		return parenthesize(expr.callee.toString(), expr.arguments.toArray(new Expr[1]));
+	public String visitCallExpr(Call expr) {	
+		return parenthesize(expr.callee.accept(this), expr.arguments.toArray(new Expr[1]));
 	}
 	
 	// Uses varargs to accept different numbers of arguments of the same type
@@ -79,8 +79,10 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 		
 		builder.append("(").append(name);
 		for (Expr ex : expr) {
+			if (ex != null) {
 			builder.append(" ");
-			builder.append(ex.accept(this)); // This is where the recursion happens, meaning the whole AST can be traversed
+			builder.append(ex.accept(this)); // This is where the recursion happens, meaning the whole AST can be traversed		
+			}
 		}
 		builder.append(")");
 		return builder.toString();
@@ -181,7 +183,8 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
 	@Override
 	public String visitFunctionStmt(Function stmt) {
-		return stmt.toString();
+		String declaration = parenthesize("fun declaration <" + stmt.name.lexeme + "> " + stmt.params.toString());
+		return parenthesizeStmt(declaration, stmt.body);
 	}
 
 	@Override
