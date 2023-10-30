@@ -71,10 +71,10 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 	
 	@Override
 	public String visitCallExpr(Call expr) {	
-		return parenthesize(expr.callee.accept(this), expr.arguments.toArray(new Expr[1]));
+		return parenthesize("call " + expr.callee.accept(this), expr.arguments.toArray(new Expr[1]));
 	}
 	
-	// Uses varargs to accept different numbers of arguments of the same type
+	// Uses var args to accept different numbers of arguments of the same type
 	private String parenthesize(String name, Expr... expr) {
 		StringBuilder builder = new StringBuilder();
 		

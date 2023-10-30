@@ -17,6 +17,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
 	private boolean breakActive = false;
 	private boolean breakInsideBlockStmt = false;
+	private long lambdaCounter = 0;
 	
 	Interpreter(){
 		globals.define("clock", new LoxCallable() {
@@ -161,11 +162,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
 	@Override
 	public Object visitCallExpr(Expr.Call expr) {
-		Object callee = evaluate(expr.callee);
-		
+		Object callee = null;
+		try {
+			callee = evaluate(expr.callee);
+		}catch(RuntimeError e) {
+		}
 		List<Object> arguments = new ArrayList<>();
 		for(Expr argument : expr.arguments) {
-			arguments.add(evaluate(argument));
+			arguments.add(evaluate(argument));//how should a lambda expr evaluate?
 		}
 		
 		if( !(callee instanceof LoxCallable)) {
@@ -196,7 +200,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
 	@Override
 	public Object visitLambdaExpr(Expr.Lambda expr) {
-		return null;
+		return new LoxLambda(expr, environment);
 	}
 	
 	private void checkNumberOperand(Token operator, Object operand) {
