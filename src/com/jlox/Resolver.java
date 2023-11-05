@@ -1,6 +1,9 @@
 package com.jlox;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import com.jlox.Expr.Assign;
 import com.jlox.Expr.Binary;
@@ -27,6 +30,9 @@ import com.jlox.Stmt.While;
 public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	
 	private final Interpreter interpreter;
+	/*The scopes stack stores only local block scopes, i.e. not the
+	 * global scope.*/
+	private Stack<Map<String, Boolean>> scopes = new Stack<>();
 	
 	Resolver(Interpreter interpreter){
 		this.interpreter = interpreter;
@@ -48,6 +54,33 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	
 	private void beginScope() {
 		scopes.push(new HashMap<String, Boolean>());
+	}
+	
+	private void endScope() {
+		scopes.pop();
+	}
+	
+	private void declare(Token name) {
+		if (scopes.isEmpty()) return;
+		
+		Map<String, Boolean> scope = scopes.peek();
+		/*setting the value to false marks the identifier as 'not ready',
+		 * i.e. its initializer is not resolved, or it is declared but
+		 * not yet defined.*/
+		scope.put(name.lexeme, false);
+	}
+	
+	private void define(Token name) {
+		if(scopes.isEmpty()) return;
+		scopes.peek().put(name.lexeme, true);
+	}
+	
+	private void resolveLocal(Expr expr, Token name) {
+		for(int i = scopes.size() - 1; i >= 0; i--) {
+			if (scopes.get(i).containsKey(name.lexeme)) {
+				
+			}
+		}
 	}
 	
 	@Override
@@ -90,7 +123,11 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 
 	@Override
 	public Void visitVarStmt(Var stmt) {
-		// TODO Auto-generated method stub
+		declare(stmt.name);
+		if (stmt.initializer != null) {
+			resolve(stmt.initializer);
+		}
+		define(stmt.name);
 		return null;
 	}
 
@@ -162,7 +199,11 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 
 	@Override
 	public Void visitVariableExpr(Variable expr) {
-		// TODO Auto-generated method stub
+		if (!scopes.isEmpty() && scopes.peek().get(expr.name.lexeme) == Boolean.FALSE) {
+			Lox.error(expr.name, "Can't read local variable in its own initializer.");
+		}
+		
+		resolveLocal(expr, expr.name);
 		return null;
 	}
 
