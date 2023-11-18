@@ -33,6 +33,12 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	/*The scopes stack stores only local block scopes, i.e. not the
 	 * global scope.*/
 	private Stack<Map<String, Boolean>> scopes = new Stack<>();
+	private FunctionType currentFunction = FunctionType.NONE;
+	
+	private enum FunctionType{
+		NONE,
+		FUNCTION
+	}
 	
 	Resolver(Interpreter interpreter){
 		this.interpreter = interpreter;
@@ -52,7 +58,10 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		expr.accept(this);
 	}
 	
-	private void resolveFunction(Function stmt) {
+	private void resolveFunction(Function stmt, FunctionType type) {
+		FunctionType enclosingFunction = currentFunction;
+		currentFunction = type;
+		
 		beginScope();
 		for (Token param : stmt.params) {
 			declare(param);
@@ -60,6 +69,7 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		}
 		resolve(stmt.body);
 		endScope();
+		currentFunction = enclosingFunction;
 	}
 	
 	private void beginScope() {
@@ -74,6 +84,10 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		if (scopes.isEmpty()) return;
 		
 		Map<String, Boolean> scope = scopes.peek();
+		if (scope.containsKey(name.lexeme)) {
+			Lox.error(name, "Already a variable with this name in this scope.");
+		}
+		
 		/*setting the value to false marks the identifier as 'not ready',
 		 * i.e. its initializer is not resolved, or it is declared but
 		 * not yet defined.*/
@@ -115,7 +129,7 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		declare(stmt.name);
 		define(stmt.name);
 		
-		resolveFunction(stmt);
+		resolveFunction(stmt, FunctionType.FUNCTION);
 		return null;
 	}
 
@@ -137,6 +151,10 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 
 	@Override
 	public Void visitReturnStmt(Return stmt) {
+		if (currentFunction == FunctionType.NONE) {
+			Lox.error(stmt.keyword, "Can't return from top-level code.");
+		}
+		
 		if (stmt.value != null) {
 			resolve(stmt.value);
 		}
