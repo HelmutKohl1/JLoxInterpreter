@@ -52,6 +52,16 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		expr.accept(this);
 	}
 	
+	private void resolveFunction(Function stmt) {
+		beginScope();
+		for (Token param : stmt.params) {
+			declare(param);
+			define(param);
+		}
+		resolve(stmt.body);
+		endScope();
+	}
+	
 	private void beginScope() {
 		scopes.push(new HashMap<String, Boolean>());
 	}
@@ -78,7 +88,8 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	private void resolveLocal(Expr expr, Token name) {
 		for(int i = scopes.size() - 1; i >= 0; i--) {
 			if (scopes.get(i).containsKey(name.lexeme)) {
-				
+				interpreter.resolve(expr, scopes.size() - 1 - i);
+				return;
 			}
 		}
 	}
@@ -93,31 +104,42 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 
 	@Override
 	public Void visitExpressionStmt(Expression stmt) {
-		// TODO Auto-generated method stub
+		resolve(stmt.expression);
 		return null;
 	}
 
 	@Override
 	public Void visitFunctionStmt(Function stmt) {
-		// TODO Auto-generated method stub
+		/*function name is declared immediately so that the body can
+		 * recursively refer to it.*/
+		declare(stmt.name);
+		define(stmt.name);
+		
+		resolveFunction(stmt);
 		return null;
 	}
 
 	@Override
 	public Void visitIfStmt(If stmt) {
-		// TODO Auto-generated method stub
+		resolve(stmt.condition);
+		resolve(stmt.thenBranch);
+		if (stmt.elseBranch != null) {
+			resolve(stmt.elseBranch);
+		}
 		return null;
 	}
 
 	@Override
 	public Void visitPrintStmt(Print stmt) {
-		// TODO Auto-generated method stub
+		resolve(stmt.expression);
 		return null;
 	}
 
 	@Override
 	public Void visitReturnStmt(Return stmt) {
-		// TODO Auto-generated method stub
+		if (stmt.value != null) {
+			resolve(stmt.value);
+		}
 		return null;
 	}
 
@@ -133,67 +155,76 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 
 	@Override
 	public Void visitWhileStmt(While stmt) {
-		// TODO Auto-generated method stub
+		resolve(stmt.condition);
+		resolve(stmt.body);
 		return null;
 	}
 
 	@Override
 	public Void visitBreakStmt(Break stmt) {
-		// TODO Auto-generated method stub
+		// Nothing to resolve.
 		return null;
 	}
 
 	@Override
 	public Void visitTernaryExpr(Ternary expr) {
-		// TODO Auto-generated method stub
+		resolve(expr.cond);
+		resolve(expr.left);
+		resolve(expr.right);
 		return null;
 	}
 
 	@Override
 	public Void visitAssignExpr(Assign expr) {
-		// TODO Auto-generated method stub
+		resolve(expr.value);
+		resolveLocal(expr, expr.name);
 		return null;
 	}
 
 	@Override
 	public Void visitBinaryExpr(Binary expr) {
-		// TODO Auto-generated method stub
+		resolve(expr.left);
+		resolve(expr.right);
 		return null;
 	}
 
 	@Override
 	public Void visitBinaryErrorExpr(BinaryError expr) {
-		// TODO Auto-generated method stub
+		resolve(expr.right);
 		return null;
 	}
 
 	@Override
 	public Void visitCallExpr(Call expr) {
-		// TODO Auto-generated method stub
+		resolve(expr.callee);
+		for(Expr arg : expr.arguments) {
+			resolve(arg);
+		}
 		return null;
 	}
 
 	@Override
 	public Void visitGroupingExpr(Grouping expr) {
-		// TODO Auto-generated method stub
+		resolve(expr.expression);
 		return null;
 	}
 
 	@Override
 	public Void visitLiteralExpr(Literal expr) {
-		// TODO Auto-generated method stub
+		// Nothing to resolve in a literal.
 		return null;
 	}
 
 	@Override
 	public Void visitLogicalExpr(Logical expr) {
-		// TODO Auto-generated method stub
+		resolve(expr.left);
+		resolve(expr.right);
 		return null;
 	}
 
 	@Override
 	public Void visitUnaryExpr(Unary expr) {
-		// TODO Auto-generated method stub
+		resolve(expr.right);
 		return null;
 	}
 
@@ -209,7 +240,14 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 
 	@Override
 	public Void visitLambdaExpr(Lambda expr) {
-		// TODO Auto-generated method stub
+		/*This will need checking.*/
+		beginScope();
+		for (Token param : expr.params) {
+			declare(param);
+			define(param);
+		}
+		resolve(expr.body);
+		endScope();
 		return null;
 	}
 
