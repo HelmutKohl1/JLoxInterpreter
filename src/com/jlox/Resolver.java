@@ -2,6 +2,7 @@ package com.jlox;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Stack;
 
@@ -33,6 +34,7 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	/*The scopes stack stores only local block scopes, i.e. not the
 	 * global scope.*/
 	private Stack<Map<String, Boolean>> scopes = new Stack<>();
+	private Map<Token, Boolean> localsUsed = new HashMap<>();
 	private FunctionType currentFunction = FunctionType.NONE;
 	
 	private enum FunctionType{
@@ -74,10 +76,16 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	
 	private void beginScope() {
 		scopes.push(new HashMap<String, Boolean>());
+		localsUsed.clear();
 	}
 	
 	private void endScope() {
 		scopes.pop();
+		for (Token local : localsUsed.keySet()) {
+			if (localsUsed.get(local) == false) {
+				Lox.error(local, "Unused local variable: '" + local.lexeme + "'");
+			}
+		}
 	}
 	
 	private void declare(Token name) {
@@ -92,6 +100,7 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		 * i.e. its initializer is not resolved, or it is declared but
 		 * not yet defined.*/
 		scope.put(name.lexeme, false);
+		localsUsed.put(name, false);
 	}
 	
 	private void define(Token name) {
@@ -103,6 +112,7 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		for(int i = scopes.size() - 1; i >= 0; i--) {
 			if (scopes.get(i).containsKey(name.lexeme)) {
 				interpreter.resolve(expr, scopes.size() - 1 - i);
+				localsUsed.put(name, true);
 				return;
 			}
 		}
