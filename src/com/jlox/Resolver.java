@@ -19,6 +19,7 @@ import com.jlox.Expr.Unary;
 import com.jlox.Expr.Variable;
 import com.jlox.Expr.Visitor;
 import com.jlox.Stmt.Block;
+import com.jlox.Stmt.Class;
 import com.jlox.Stmt.Break;
 import com.jlox.Stmt.Expression;
 import com.jlox.Stmt.Function;
@@ -126,6 +127,13 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		return null;
 	}
 
+	@Override
+	public Void visitClassStmt(Class stmt) {
+		declare(stmt.name);
+		define(stmt.name);
+		return null;
+	}
+	
 	@Override
 	public Void visitExpressionStmt(Expression stmt) {
 		resolve(stmt.expression);

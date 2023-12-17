@@ -2,6 +2,8 @@ package com.jlox;
 
 import java.util.List;
 
+import com.jlox.Stmt.Function;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 
@@ -287,6 +289,9 @@ class Parser {
 	private Stmt declaration() {
 		/* Method for parsing a variable or function declaration */
 		try {
+			if (match(CLASS)) {
+				classDeclaration();
+			}
 			if (match(FUN)) {
 				return function("function");					
 			}
@@ -301,6 +306,18 @@ class Parser {
 		}
 	}
 
+	private Stmt classDeclaration() {
+		Token name = consume(IDENTIFIER, "Expect Class name.");
+		consume(LEFT_BRACE, "Expect '{' before Class body.");
+		
+		List<Stmt.Function> methods = new ArrayList<>();
+		while (!check(RIGHT_BRACE) && !isAtEnd()) {
+			methods.add((Function) function("method"));
+		}
+		consume(RIGHT_BRACE, "Expect '}' after Class body.");
+		return new Stmt.Class(name, methods);
+	}
+	
 	private Expr comma() {
 		/* Method added to support the comma (,) operator from C/C++ , pursuant to Exercise 1
 		 * of Parsing Expressions. */
