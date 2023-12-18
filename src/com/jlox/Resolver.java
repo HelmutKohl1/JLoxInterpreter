@@ -10,6 +10,7 @@ import com.jlox.Expr.Assign;
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Call;
+import com.jlox.Expr.Get;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Lambda;
 import com.jlox.Expr.Literal;
@@ -239,6 +240,13 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		return null;
 	}
 
+	@Override
+	public Void visitGetExpr(Get expr) {
+		/*Member lookup is dynamic since the member name isn't resolved here.*/
+		resolve(expr.object);
+		return null;
+	}
+	
 	@Override
 	public Void visitGroupingExpr(Grouping expr) {
 		resolve(expr.expression);

@@ -63,8 +63,8 @@ public class Lox {
 		AstPrinter printer = new AstPrinter();
 		for(Stmt statement : statements) {
 			System.out.println(printer.print(statement));
-		}*/
-		
+		}
+		*/
 		if(hadError) return;
 		
 		Resolver resolver = new Resolver(interpreter);

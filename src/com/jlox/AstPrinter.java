@@ -15,6 +15,7 @@ import com.jlox.Expr.Logical;
 import com.jlox.Expr.Unary;
 import com.jlox.Expr.Variable;
 import com.jlox.Stmt.Block;
+import com.jlox.Stmt.Class;
 import com.jlox.Stmt.Break;
 import com.jlox.Stmt.Expression;
 import com.jlox.Stmt.Function;
@@ -149,6 +150,11 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 		return parenthesizeStmt("block: ", stmt.statements);
 	}
 
+	@Override 
+	public String visitClassStmt(Class stmt) {
+		return parenthesize("class declaration: " + stmt.name.lexeme);
+	}
+	
 	@Override
 	public String visitExpressionStmt(Expression stmt) {
 		return parenthesize("expr: ", stmt.expression);

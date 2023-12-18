@@ -290,7 +290,7 @@ class Parser {
 		/* Method for parsing a variable or function declaration */
 		try {
 			if (match(CLASS)) {
-				classDeclaration();
+				return classDeclaration();
 			}
 			if (match(FUN)) {
 				return function("function");					
@@ -423,6 +423,10 @@ class Parser {
 		while (true) {
 			if (match(LEFT_PAREN)) {
 				expr = finishCall(expr);
+			}
+			else if (match(DOT)) {
+				Token name = consume(IDENTIFIER, "Expected property name after '.'");
+				expr = new Expr.Get(expr, name);
 			}
 			else {
 				break;
