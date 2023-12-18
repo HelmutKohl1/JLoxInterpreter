@@ -258,6 +258,11 @@ class Parser {
 				 * also a stand-alone variable expression.*/
 				return new Expr.Assign(name, value);
 			}
+			else if (expression instanceof Expr.Get) {
+				Expr.Get get = (Expr.Get)expression;
+				return new Expr.Set(get.object, get.name, value);
+			}
+			
 			
 			error(equals, "Invalid assignment target.");
 		}

@@ -15,6 +15,7 @@ import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Lambda;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
+import com.jlox.Expr.Set;
 import com.jlox.Expr.Ternary;
 import com.jlox.Expr.Unary;
 import com.jlox.Expr.Variable;
@@ -263,6 +264,15 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	public Void visitLogicalExpr(Logical expr) {
 		resolve(expr.left);
 		resolve(expr.right);
+		return null;
+	}
+	
+	@Override
+	public Void visitSetExpr(Set expr) {
+		/*As for the get expression, we don't resolve the 
+		 * property's name as they are dynamically evaluated.*/
+		resolve(expr.value);
+		resolve(expr.object);
 		return null;
 	}
 
