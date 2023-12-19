@@ -298,11 +298,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
 	@Override
 	public Void visitClassStmt(Stmt.Class stmt) {
-		/*This two-stage binding process allows references to 
+		/*Here, we turn the class declaration's AST node
+		 * into a class's runtime representation.
+		 * 
+		 * This two-stage binding process allows references to 
 		 * the class itself inside the class's methods*/
 		environment.define(stmt.name.lexeme, null);
-		LoxClass klass = new LoxClass(stmt.name.lexeme);
-		environment.assign(stmt.name, klass);
+		Map<String, LoxFunction> methods = new HashMap<>();
+		for (Stmt.Function method : stmt.methods) {
+			LoxFunction function = new LoxFunction(method, environment);
+			methods.put(method.name.lexeme, function);
+		}
+		LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
+		environment.assign(stmt.name, klass);		
 		return null;
 	}
 	

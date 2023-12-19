@@ -42,7 +42,8 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	
 	private enum FunctionType{
 		NONE,
-		FUNCTION
+		FUNCTION,
+		METHOD
 	}
 	
 	Resolver(Interpreter interpreter){
@@ -133,6 +134,12 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	public Void visitClassStmt(Class stmt) {
 		declare(stmt.name);
 		define(stmt.name);
+		
+		for (Stmt.Function method : stmt.methods) {
+			FunctionType declaration = FunctionType.METHOD;
+			resolveFunction(method, declaration);
+		}
+		
 		return null;
 	}
 	
