@@ -17,6 +17,7 @@ import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
 import com.jlox.Expr.Set;
 import com.jlox.Expr.Ternary;
+import com.jlox.Expr.This;
 import com.jlox.Expr.Unary;
 import com.jlox.Expr.Variable;
 import com.jlox.Expr.Visitor;
@@ -39,11 +40,18 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	private Stack<Map<String, Boolean>> scopes = new Stack<>();
 	private Map<Token, Boolean> localsUsed = new HashMap<>();
 	private FunctionType currentFunction = FunctionType.NONE;
+	private ClassType currentClass = ClassType.NONE;
 	
 	private enum FunctionType{
 		NONE,
 		FUNCTION,
-		METHOD
+		METHOD,
+		INITIALIZER
+	}
+	
+	private enum ClassType{
+		CLASS,
+		NONE
 	}
 	
 	Resolver(Interpreter interpreter){
@@ -131,15 +139,26 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	}
 
 	@Override
-	public Void visitClassStmt(Class stmt) {
+	public Void visitClassStmt(Class stmt) {		
+		ClassType enclosingClass = currentClass;
+		currentClass = ClassType.CLASS;
 		declare(stmt.name);
 		define(stmt.name);
 		
+		/*We declare 'this' as an implicit field of the class in its
+		 * own scope which is a closure for the class's methods.*/
+		beginScope();
+		scopes.peek().put("this", true);
+		
 		for (Stmt.Function method : stmt.methods) {
 			FunctionType declaration = FunctionType.METHOD;
+			if (method.name.lexeme.equals("init")) {
+				declaration = FunctionType.INITIALIZER;
+			}
 			resolveFunction(method, declaration);
 		}
-		
+		endScope();
+		currentClass = enclosingClass;
 		return null;
 	}
 	
@@ -180,6 +199,9 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	public Void visitReturnStmt(Return stmt) {
 		if (currentFunction == FunctionType.NONE) {
 			Lox.error(stmt.keyword, "Can't return from top-level code.");
+		}
+		else if (currentFunction == FunctionType.INITIALIZER) {
+			Lox.error(stmt.keyword, "Can't return a value from an initializer.");
 		}
 		
 		if (stmt.value != null) {
@@ -280,6 +302,16 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		 * property's name as they are dynamically evaluated.*/
 		resolve(expr.value);
 		resolve(expr.object);
+		return null;
+	}
+	
+	@Override
+	public Void visitThisExpr(This expr) {
+		if (currentClass == ClassType.NONE) {
+			Lox.error(expr.keyword, "Cannot use 'this' keyword outside of a class.");
+			return null;
+		}
+		resolveLocal(expr, expr.keyword);
 		return null;
 	}
 

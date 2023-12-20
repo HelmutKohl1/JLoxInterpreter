@@ -26,7 +26,10 @@ public class LoxClass implements LoxCallable{
 	
 	@Override
 	public int arity() {
-		return 0;
+		if (findMethod("init") == null) {
+			return 0;
+		}
+		return findMethod("init").arity();
 	}
 	
 	@Override
@@ -39,6 +42,10 @@ public class LoxClass implements LoxCallable{
 		 * i.e. The constructor is called by calling the class name itself.
 		 * */
 		LoxInstance instance = new LoxInstance(this);
+		LoxFunction initializer = findMethod("init");
+		if (initializer != null) {
+			initializer.bind(instance).call(interpreter, arguments);
+		}
 		return instance;
 	}
 	
