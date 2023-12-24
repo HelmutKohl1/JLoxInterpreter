@@ -315,11 +315,23 @@ class Parser {
 		consume(LEFT_BRACE, "Expect '{' before Class body.");
 		
 		List<Stmt.Function> methods = new ArrayList<>();
+		List<Stmt.Function> staticMethods = new ArrayList<>();
 		while (!check(RIGHT_BRACE) && !isAtEnd()) {
-			methods.add((Function) function("method"));
+			System.out.println("peek(): " + peek());
+			if (match(CLASS)) {
+				System.out.println("adding static method");
+				staticMethods.add((Function) function("static method"));
+			} else {
+				System.out.println("adding instance method");
+				methods.add((Function) function("method"));
+			}
 		}
 		consume(RIGHT_BRACE, "Expect '}' after Class body.");
-		return new Stmt.Class(name, methods);
+		if (staticMethods.isEmpty()) {
+			return new Stmt.Class(name, methods, null);
+		}else {
+			return new Stmt.Class(name, methods, new Stmt.Class(name, staticMethods, null));
+		}
 	}
 	
 	private Expr comma() {

@@ -1,6 +1,7 @@
 package com.jlox;
 
 import com.jlox.Expr.Ternary;
+import com.jlox.Expr.This;
 
 import java.util.List;
 
@@ -8,10 +9,12 @@ import com.jlox.Expr.Assign;
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Call;
+import com.jlox.Expr.Get;
 import com.jlox.Expr.Grouping;
 import com.jlox.Expr.Lambda;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
+import com.jlox.Expr.Set;
 import com.jlox.Expr.Unary;
 import com.jlox.Expr.Variable;
 import com.jlox.Stmt.Block;
@@ -205,5 +208,20 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 	@Override
 	public String visitReturnStmt(Return stmt) {
 		return parenthesize(stmt.keyword.lexeme, stmt.value);
+	}
+
+	@Override
+	public String visitGetExpr(Get expr) {
+		return parenthesize("get: " + expr.object.toString() + "." + expr.name.lexeme);
+	}
+
+	@Override
+	public String visitSetExpr(Set expr) {
+		return parenthesize("set: " + expr.object.toString() + "." + expr.name.lexeme);
+	}
+
+	@Override
+	public String visitThisExpr(This expr) {
+		return parenthesize("this");
 	}
 }

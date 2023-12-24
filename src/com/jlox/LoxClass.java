@@ -4,17 +4,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-public class LoxClass implements LoxCallable{
-
+public class LoxClass extends LoxInstance implements LoxCallable{
+	
+	/*Members from LoxInstance*/
+	private LoxClass klass;//Field which stores the class's metaclass
+	private final Map<String, Object> fields = null;//null since the class itself has no fields.
+	
 	final String name;
 	private final Map<String, LoxFunction> methods;
 	/*Methods are owned by the class itself, but accessed through instances.
 	 * Instances store state.
 	 * */
 	
-	LoxClass(String name, Map<String, LoxFunction> methods){
+	LoxClass(LoxClass klass, String name, Map<String, LoxFunction> methods){
+		super(klass);
 		this.name = name;
 		this.methods = methods;
+		System.out.println("LoxClass created. klass: " + klass + " name: " + name + " with " + methods.size() + " methods.");
 	}
 	
 	LoxFunction findMethod(String name) {

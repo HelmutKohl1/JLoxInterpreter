@@ -195,6 +195,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 		try {
 			callee = evaluate(expr.callee);
 		}catch(RuntimeError e) {
+			System.out.println("eval of callee failed");
+			System.out.println("class of callee: " + callee.getClass());
 		}
 		List<Object> arguments = new ArrayList<>();
 		for(Expr argument : expr.arguments) {
@@ -314,7 +316,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 			LoxFunction function = new LoxFunction(method, environment, method.name.lexeme.equals("init"));
 			methods.put(method.name.lexeme, function);
 		}
-		LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
+		
+		LoxClass metaclass = null;
+		if (stmt.metaclass != null) {
+			Map<String, LoxFunction> staticMethods = new HashMap<>();
+			for (Stmt.Function method : stmt.metaclass.methods) {
+				LoxFunction function = new LoxFunction(method, environment, method.name.lexeme.equals("init"));
+				methods.put(method.name.lexeme, function);
+			}
+			metaclass = new LoxClass(null, stmt.name.lexeme + "MetaClass", staticMethods);
+		}
+		
+		LoxClass klass = new LoxClass(metaclass, stmt.name.lexeme, methods);
 		environment.assign(stmt.name, klass);		
 		return null;
 	}

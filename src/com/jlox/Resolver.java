@@ -46,6 +46,7 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		NONE,
 		FUNCTION,
 		METHOD,
+		STATIC_METHOD,//unsure if actually needed
 		INITIALIZER
 	}
 	
@@ -145,9 +146,23 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		declare(stmt.name);
 		define(stmt.name);
 		
+		if (stmt.metaclass != null) {
+			declare(stmt.metaclass.name);
+			define(stmt.metaclass.name);
+		}
+	
+		beginScope();
+		//should the static methods go in this scope?
+		//how to handle the metaclass's scope generally.
+		/* should the metaclass's methods (i.e. the class's static methods) be resolved into 
+		 * a separate scope? - could go in the same scope so that static methods can access
+		 * 'this'.
+		 * */
+		/*we could also resolve the name of the class to it's metaclass so that when it's
+		* called, the name refers to the metaclass.*/
+		
 		/*We declare 'this' as an implicit field of the class in its
 		 * own scope which is a closure for the class's methods.*/
-		beginScope();
 		scopes.peek().put("this", true);
 		
 		for (Stmt.Function method : stmt.methods) {
@@ -156,6 +171,13 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 				declaration = FunctionType.INITIALIZER;
 			}
 			resolveFunction(method, declaration);
+		}
+		
+		if (stmt.metaclass != null) {
+			for(Stmt.Function staticMethod : stmt.metaclass.methods) {
+				FunctionType declaration = FunctionType.STATIC_METHOD;
+				resolveFunction(staticMethod, declaration);
+			}			
 		}
 		endScope();
 		currentClass = enclosingClass;
