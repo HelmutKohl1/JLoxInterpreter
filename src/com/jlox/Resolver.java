@@ -96,7 +96,7 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		scopes.pop();
 		for (Token local : localsUsed.keySet()) {
 			if (localsUsed.get(local) == false) {
-				Lox.error(local, "Unused local variable: '" + local.lexeme + "'");
+				//Lox.error(local, "Unused local variable: '" + local.lexeme + "'");
 			}
 		}
 	}
@@ -156,7 +156,10 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		//how to handle the metaclass's scope generally.
 		/* should the metaclass's methods (i.e. the class's static methods) be resolved into 
 		 * a separate scope? - could go in the same scope so that static methods can access
-		 * 'this'.
+		 * 'this'.  - Not needed, since we have no static members, a static method would never 
+		 * need access to the 'this' keyword.
+		 * 
+		 * 
 		 * */
 		/*we could also resolve the name of the class to it's metaclass so that when it's
 		* called, the name refers to the metaclass.*/

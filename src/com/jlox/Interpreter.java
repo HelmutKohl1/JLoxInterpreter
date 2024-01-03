@@ -322,7 +322,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 			Map<String, LoxFunction> staticMethods = new HashMap<>();
 			for (Stmt.Function method : stmt.metaclass.methods) {
 				LoxFunction function = new LoxFunction(method, environment, method.name.lexeme.equals("init"));
-				methods.put(method.name.lexeme, function);
+				staticMethods.put(method.name.lexeme, function);
 			}
 			metaclass = new LoxClass(null, stmt.name.lexeme + "MetaClass", staticMethods);
 		}
