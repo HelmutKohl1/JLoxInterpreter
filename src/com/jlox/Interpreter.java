@@ -197,6 +197,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 		}catch(RuntimeError e) {
 			System.out.println("eval of callee failed");
 			System.out.println("class of callee: " + callee.getClass());
+			System.out.println(e.getMessage());
 		}
 		List<Object> arguments = new ArrayList<>();
 		for(Expr argument : expr.arguments) {

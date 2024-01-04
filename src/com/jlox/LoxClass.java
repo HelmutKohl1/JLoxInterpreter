@@ -7,7 +7,7 @@ import java.util.HashMap;
 public class LoxClass extends LoxInstance implements LoxCallable{
 	
 	/*Members from LoxInstance*/
-	private LoxClass klass;//Field which stores the class's metaclass
+	public LoxClass klass;//Field which stores the class's metaclass
 	private final Map<String, Object> fields = null;//null since the class itself has no fields.
 	
 	final String name;

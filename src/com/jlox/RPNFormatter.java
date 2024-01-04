@@ -4,10 +4,14 @@ import com.jlox.Expr.Assign;
 import com.jlox.Expr.Binary;
 import com.jlox.Expr.BinaryError;
 import com.jlox.Expr.Call;
+import com.jlox.Expr.Get;
 import com.jlox.Expr.Grouping;
+import com.jlox.Expr.Lambda;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
+import com.jlox.Expr.Set;
 import com.jlox.Expr.Ternary;
+import com.jlox.Expr.This;
 import com.jlox.Expr.Unary;
 import com.jlox.Expr.Variable;
 import com.jlox.Expr.Visitor;
@@ -81,5 +85,25 @@ public class RPNFormatter implements Expr.Visitor<String> {
 	@Override
 	public String visitLogicalExpr(Logical expr) {
 		return revPolish(expr.operator.lexeme, expr.left, expr.right);
+	}
+
+	@Override
+	public String visitGetExpr(Get expr) {
+		return revPolish(expr.name.lexeme, expr.object);
+	}
+
+	@Override
+	public String visitSetExpr(Set expr) {
+		return revPolish(expr.name.lexeme, expr.object);
+	}
+
+	@Override
+	public String visitThisExpr(This expr) {
+		return revPolish("this");
+	}
+
+	@Override
+	public String visitLambdaExpr(Lambda expr) {
+		return revPolish("lambda");
 	}
 }

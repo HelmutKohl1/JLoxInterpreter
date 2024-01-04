@@ -18,7 +18,16 @@ public class LoxInstance {
 			return fields.get(name.lexeme);
 		}
 		
-		LoxFunction method = klass.findMethod(name.lexeme);
+		LoxFunction method = null;
+		if (klass.klass != null) {
+			if (klass.klass.findMethod(name.lexeme) != null) {
+				throw new RuntimeError(name, "Cannot access static method " + name.lexeme +  " through an instance.");
+			}
+		}else {
+			method = klass.findMethod(name.lexeme);
+		}
+		
+		//LoxFunction method = klass.findMethod(name.lexeme);
 		if (method != null) return method.bind(this);
 		
 		throw new RuntimeError(name, "Undefined property '" + name.lexeme + "'.");
