@@ -8,6 +8,7 @@ public class LoxClass extends LoxInstance implements LoxCallable{
 	
 	/*Members from LoxInstance*/
 	public LoxClass klass;//Field which stores the class's metaclass
+	final LoxClass superclass;
 	private final Map<String, Object> fields = null;//null since the class itself has no fields.
 	
 	final String name;
@@ -16,8 +17,9 @@ public class LoxClass extends LoxInstance implements LoxCallable{
 	 * Instances store state.
 	 * */
 	
-	LoxClass(LoxClass klass, String name, Map<String, LoxFunction> methods){
+	LoxClass(LoxClass klass, LoxClass superclass, String name, Map<String, LoxFunction> methods){
 		super(klass);
+		this.superclass = superclass;
 		this.name = name;
 		this.methods = methods;
 		System.out.println("LoxClass created. klass: " + klass + " name: " + name + " with " + methods.size() + " methods.");
@@ -26,6 +28,10 @@ public class LoxClass extends LoxInstance implements LoxCallable{
 	LoxFunction findMethod(String name) {
 		if (methods.containsKey(name)) {
 			return methods.get(name);	
+		}
+		
+		if (superclass != null) {
+			return superclass.findMethod(name);
 		}
 		return null;
 	}

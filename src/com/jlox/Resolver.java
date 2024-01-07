@@ -16,6 +16,7 @@ import com.jlox.Expr.Lambda;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
 import com.jlox.Expr.Set;
+import com.jlox.Expr.Super;
 import com.jlox.Expr.Ternary;
 import com.jlox.Expr.This;
 import com.jlox.Expr.Unary;
@@ -51,8 +52,9 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 	}
 	
 	private enum ClassType{
+		SUBCLASS,
 		CLASS,
-		NONE
+		NONE,
 	}
 	
 	Resolver(Interpreter interpreter){
@@ -146,11 +148,25 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		declare(stmt.name);
 		define(stmt.name);
 		
+		if (stmt.superclass != null && stmt.name.lexeme.equals(stmt.superclass.name.lexeme)) {
+			Lox.error(stmt.superclass.name, "A class can't inherit from itself.");
+		}
+		
+		if (stmt.superclass != null) {
+			currentClass = ClassType.SUBCLASS;
+			resolve(stmt.superclass);
+		}
+		
 		if (stmt.metaclass != null) {
 			declare(stmt.metaclass.name);
 			define(stmt.metaclass.name);
 		}
 	
+		if (stmt.superclass != null) {
+			beginScope();
+			scopes.peek().put("super", true);
+		}
+		
 		beginScope();
 		//should the static methods go in this scope?
 		//how to handle the metaclass's scope generally.
@@ -183,6 +199,9 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 			}			
 		}
 		endScope();
+		if (stmt.superclass != null) {
+			endScope();
+		}
 		currentClass = enclosingClass;
 		return null;
 	}
@@ -327,6 +346,18 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		 * property's name as they are dynamically evaluated.*/
 		resolve(expr.value);
 		resolve(expr.object);
+		return null;
+	}
+	
+	@Override
+	public Void visitSuperExpr(Super expr) {
+		if (currentClass == ClassType.NONE) {
+			Lox.error(expr.keyword, "Cannot use 'super' keyword outside of a class.");
+		}
+		else if (currentClass != ClassType.SUBCLASS) {
+			Lox.error(expr.keyword, "Cannot use 'super' keyword inside a class with no superclass.");
+		}
+		resolveLocal(expr, expr.keyword);
 		return null;
 	}
 	

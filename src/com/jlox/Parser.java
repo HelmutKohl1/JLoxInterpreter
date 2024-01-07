@@ -312,6 +312,13 @@ class Parser {
 
 	private Stmt classDeclaration() {
 		Token name = consume(IDENTIFIER, "Expect Class name.");
+		
+		Expr.Variable superclass = null;
+		if (match(LESS)) {
+			consume(IDENTIFIER, "Expect superclass name after '<'");
+			superclass = new Expr.Variable(previous());
+		}
+		
 		consume(LEFT_BRACE, "Expect '{' before Class body.");
 		
 		List<Stmt.Function> methods = new ArrayList<>();
@@ -319,18 +326,16 @@ class Parser {
 		while (!check(RIGHT_BRACE) && !isAtEnd()) {
 			System.out.println("peek(): " + peek());
 			if (match(CLASS)) {
-				System.out.println("adding static method");
 				staticMethods.add((Function) function("static method"));
 			} else {
-				System.out.println("adding instance method");
 				methods.add((Function) function("method"));
 			}
 		}
 		consume(RIGHT_BRACE, "Expect '}' after Class body.");
 		if (staticMethods.isEmpty()) {
-			return new Stmt.Class(name, methods, null);
+			return new Stmt.Class(name, superclass, methods, null);
 		}else {
-			return new Stmt.Class(name, methods, new Stmt.Class(name, staticMethods, null));
+			return new Stmt.Class(name, superclass, methods, new Stmt.Class(name, null, staticMethods, null));
 		}
 	}
 	
@@ -491,6 +496,12 @@ class Parser {
 			consume(RIGHT_PAREN, "Expect ')' after expression.");
 			return new Expr.Grouping(expr);
 		} 
+		else if (match(SUPER)) {
+			Token keyword = previous();
+			consume(DOT, "Expect '.' after 'super'.");
+			Token method = consume(IDENTIFIER, "Expect superclass method name.");
+			return new Expr.Super(keyword, method);
+		}
 		else if (match(THIS)) {
 			return new Expr.This(previous());
 		}
