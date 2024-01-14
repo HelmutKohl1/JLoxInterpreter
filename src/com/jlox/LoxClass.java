@@ -22,7 +22,6 @@ public class LoxClass extends LoxInstance implements LoxCallable{
 		this.superclass = superclass;
 		this.name = name;
 		this.methods = methods;
-		System.out.println("LoxClass created. klass: " + klass + " name: " + name + " with " + methods.size() + " methods.");
 	}
 	
 	LoxFunction findMethod(String name) {

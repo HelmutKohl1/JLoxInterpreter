@@ -204,13 +204,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	@Override
 	public Object visitCallExpr(Expr.Call expr) {
 		Object callee = null;
-		try {
-			callee = evaluate(expr.callee);
-		}catch(RuntimeError e) {
-			System.out.println("eval of callee failed");
-			System.out.println("class of callee: " + callee.getClass());
-			System.out.println(e.getMessage());
-		}
+		callee = evaluate(expr.callee);
 		List<Object> arguments = new ArrayList<>();
 		for(Expr argument : expr.arguments) {
 			arguments.add(evaluate(argument));//how should a lambda expr evaluate?
@@ -433,7 +427,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 	
 	@Override
 	public Void visitBreakStmt(Stmt.Break stmt) {
-		System.out.println("breakActive = true");
 		breakActive = true;
 		return null;
 	}

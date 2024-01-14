@@ -98,6 +98,7 @@ public class Resolver implements Visitor<Void>, com.jlox.Stmt.Visitor<Void> {
 		scopes.pop();
 		for (Token local : localsUsed.keySet()) {
 			if (localsUsed.get(local) == false) {
+				//Doesn't work
 				//Lox.error(local, "Unused local variable: '" + local.lexeme + "'");
 			}
 		}

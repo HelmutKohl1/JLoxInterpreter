@@ -10,6 +10,7 @@ import com.jlox.Expr.Lambda;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
 import com.jlox.Expr.Set;
+import com.jlox.Expr.Super;
 import com.jlox.Expr.Ternary;
 import com.jlox.Expr.This;
 import com.jlox.Expr.Unary;
@@ -105,5 +106,10 @@ public class RPNFormatter implements Expr.Visitor<String> {
 	@Override
 	public String visitLambdaExpr(Lambda expr) {
 		return revPolish("lambda");
+	}
+	
+	@Override
+	public String visitSuperExpr(Super expr) {
+		return revPolish("super");
 	}
 }

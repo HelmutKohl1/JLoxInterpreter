@@ -15,6 +15,7 @@ import com.jlox.Expr.Lambda;
 import com.jlox.Expr.Literal;
 import com.jlox.Expr.Logical;
 import com.jlox.Expr.Set;
+import com.jlox.Expr.Super;
 import com.jlox.Expr.Unary;
 import com.jlox.Expr.Variable;
 import com.jlox.Stmt.Block;
@@ -223,5 +224,10 @@ public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 	@Override
 	public String visitThisExpr(This expr) {
 		return parenthesize("this");
+	}
+
+	@Override
+	public String visitSuperExpr(Super expr) {
+		return parenthesize("super");
 	}
 }

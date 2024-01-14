@@ -63,10 +63,6 @@ class Parser {
 			return new Stmt.Block(block());
 		}
 		if (match(BREAK)) {
-			//throw syntax error - old idea
-//			System.out.println("break inside statement");
-//			consume(SEMICOLON, "Expect ';' after 'break' statement.");
-//			return new Stmt.Break(null);
 			return breakStatement();
 		}
 		return expressionStatement();
@@ -324,7 +320,6 @@ class Parser {
 		List<Stmt.Function> methods = new ArrayList<>();
 		List<Stmt.Function> staticMethods = new ArrayList<>();
 		while (!check(RIGHT_BRACE) && !isAtEnd()) {
-			System.out.println("peek(): " + peek());
 			if (match(CLASS)) {
 				staticMethods.add((Function) function("static method"));
 			} else {
